@@ -7,6 +7,7 @@ namespace ConsoleSBOM
 {
     internal class Program
     {
+        //test
         static void Main(string[] args)
         {
             if (args[0] != "/h")
