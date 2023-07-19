@@ -3,9 +3,9 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace ConsoleSBOM
+ namespace ConsoleSBOM
 {
-    internal class Program
+    public class Program
     {
         //test
         static void Main(string[] args)
@@ -175,7 +175,7 @@ namespace ConsoleSBOM
             return output;
         }
 
-        static string[] UrlCreator(string directory)
+        public static string[] UrlCreator(string directory)
         {
             string[] output = new string[6];
             if (File.Exists(directory))
@@ -202,7 +202,7 @@ namespace ConsoleSBOM
             return output;
         }
 
-        static string LicenseCreator(string directory)
+        public static string LicenseCreator(string directory)
         {
             if (File.Exists(directory))
             {

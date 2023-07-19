@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CosnoleSboM", "CosnoleSboM.csproj", "{28A516A1-F10F-4C6B-B292-71C65BD686FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sbom_UnitTest", "..\Sbom_UnitTest\Sbom_UnitTest.csproj", "{60C7A53E-B46E-4981-8115-8BFBA5DE62EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{28A516A1-F10F-4C6B-B292-71C65BD686FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28A516A1-F10F-4C6B-B292-71C65BD686FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28A516A1-F10F-4C6B-B292-71C65BD686FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60C7A53E-B46E-4981-8115-8BFBA5DE62EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60C7A53E-B46E-4981-8115-8BFBA5DE62EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60C7A53E-B46E-4981-8115-8BFBA5DE62EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60C7A53E-B46E-4981-8115-8BFBA5DE62EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
