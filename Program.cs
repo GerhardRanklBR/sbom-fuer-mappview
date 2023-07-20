@@ -7,7 +7,6 @@ using System.Text;
 {
     public class Program
     {
-        //test
         static void Main(string[] args)
         {
             if (args[0] != "/h")
