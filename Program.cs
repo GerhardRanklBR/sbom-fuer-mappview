@@ -3,42 +3,35 @@ using System.IO;
 using System.Net;
 using System.Text;
 
- namespace ConsoleSBOM
+namespace ConsoleSBOM
 {
     public class Program
     {
         static void Main(string[] args)
         {
-            if (args[0] != "/h")
+            if (args.Length > 0)
             {
-                if (Directory.Exists(args[0]) && Directory.Exists(args[3]))
+                if (args[0] != "/h")
                 {
-                    if (args.Length > 4)
+                    if (Directory.Exists(args[0]) && Directory.Exists(args[3]))
                     {
-                        bool createLog = false;
-
-                        if (args.Length >= 5)
-                            createLog = args[4] == "log";
-
-                        Sbom[] sbom;
-
-                        if (args.Length >= 6)
-                            sbom = CreateSbomArray(args[0], createLog, args[5] == "file", args[3]);
-                        else
-                            sbom = CreateSbomArray(args[0], createLog, false, args[3]);
-
-
-                        bool tmp = false;
-
-                        if (args.Length == 7)
+                        if (args.Length >= 4)
                         {
-                            if (args[6] == "add")
+                            bool[] optArgs = OptionalParameter(args);
+
+                            Sbom[] sbom;
+
+                            sbom = CreateSbomArray(args[0], optArgs[0], optArgs[1], args[3]);
+
+                            bool tmp = false;
+
+                            if (optArgs[2])
                             {
                                 string[] csv;
 
-                                if (File.Exists(Path.Combine(args[3] , args[2] + ".csv")))
+                                if (File.Exists(Path.Combine(args[3], args[2] + ".csv")))
                                 {
-                                    csv = File.ReadAllLines(Path.Combine(args[3] , args[2] + ".csv"));
+                                    csv = File.ReadAllLines(Path.Combine(args[3], args[2] + ".csv"));
                                     ConvertToCsv(args[2], sbom, args[3], csv);
                                 }
                                 else
@@ -46,52 +39,77 @@ using System.Text;
                             }
                             else
                                 tmp = true;
+
+                            if (tmp)
+                            {
+                                if (args[1] == "csv")
+                                    ConvertToCsvAndCreate(args[2], sbom, args[3]);
+                                if (args[1] == "spdx")
+                                    ConvertFromSbomToSpdx(args[2], sbom, args[3]);
+                                if (args[1] == "all")
+                                {
+                                    ConvertToCsvAndCreate(args[2], sbom, args[3]);
+                                    ConvertFromSbomToSpdx(args[2], sbom, args[3]);
+                                }
+                            }
+
+                            Console.WriteLine("Done");
+
                         }
                         else
-                            tmp = true;
-
-                        if (tmp)
                         {
-                            if (args[1] == "csv")
-                                ConvertToCsvAndCreate(args[2], sbom, args[3]);
-                            if (args[1] == "spdx")
-                                ConvertFromSbomToSpdx(args[2], sbom, args[3]);
-                            if (args[1] == "all")
-                            {
-                                ConvertToCsvAndCreate(args[2], sbom, args[3]);
-                                ConvertFromSbomToSpdx(args[2], sbom, args[3]);
-                            }
+                            Console.WriteLine("Not all args were provided");
                         }
-
-
-
                     }
                     else
                     {
-                        Console.WriteLine("Not all args were provided");
+                        Console.WriteLine("The directory doesn't exist");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("The directory doesn't exist");
+                    Console.WriteLine("The first arg should be the complete filepath to the libaries");
+                    Console.WriteLine();
+                    Console.WriteLine("The second should be the filetype of the file (csv, xmll, all)");
+                    Console.WriteLine();
+                    Console.WriteLine("The third value should be the output filename");
+                    Console.WriteLine();
+                    Console.WriteLine("The fourth arg should be the full filepath to the directory, where the new file should end up");
+                    Console.WriteLine();
+                    Console.WriteLine("The fifth arg should be log if a log should be provided");
+                    Console.WriteLine();
+                    Console.WriteLine("The sixth arg should be file if the log should be provided in a file");
+                    Console.WriteLine();
+                    Console.WriteLine("The seventh arg should be add if the new csv should be added at the end of the old one");
                 }
             }
             else
             {
-                Console.WriteLine("The first arg should be the complete filepath to the libaries");
-                Console.WriteLine();
-                Console.WriteLine("The second should be the filetype of the file (csv, xmll, all)");
-                Console.WriteLine();
-                Console.WriteLine("The third value should be the output filename");
-                Console.WriteLine();
-                Console.WriteLine("The fourth arg should be the full filepath to the directory, where the new file should end up");
-                Console.WriteLine();
-                Console.WriteLine("The fifth arg should be log if a log should be provided");
-                Console.WriteLine();
-                Console.WriteLine("The sixth arg should be file if the log should be provided in a file");
-                Console.WriteLine();
-                Console.WriteLine("The seventh arg should be add if the new csv should be added at the end of the old one");
+                Console.WriteLine("Not enough parameter");
             }
+
+        }
+
+        static bool[] OptionalParameter(string[] input)
+        {
+            bool[] output = new bool[3];
+
+            for (int i = 4; i < input.Length; i++)
+            {
+                if (input[i] == "log")
+                    output[0] = true;
+
+                if (input[i] == "file")
+                    output[1] = true;
+
+                if (input[i] == "add")
+                    output[2] = true;
+            }
+
+            if (output[0])
+                output[1] = false;
+
+            return output;
         }
 
         static Sbom CreateSbom(string[] values)
@@ -108,10 +126,8 @@ using System.Text;
             return output;
         }
 
-        static Sbom[] CreateSbomArray(string parentDirectory, bool createLog, bool logFile, string outputLoc)
+        public static Sbom[] CreateSbomArray(string parentDirectory, bool createLog, bool logFile, string outputLoc)
         {
-
-
             int posForNewValue = 0;
 
             string[] directories = Directory.GetDirectories(parentDirectory);
@@ -154,7 +170,6 @@ using System.Text;
             {
                 return true;
             }
-
             return false;
         }
 
@@ -163,8 +178,8 @@ using System.Text;
             string[] output = new string[6];
 
             output = UrlCreator(Path.Combine(directory, "lic-src.url"));
-            output[0] = VersionCreator(Path.Combine(directory , "VERSION"));
-            output[2] = LicenseCreator(Path.Combine(directory , "LICENSETYPE"));
+            output[0] = VersionCreator(Path.Combine(directory, "VERSION"));
+            output[2] = LicenseCreator(Path.Combine(directory, "LICENSETYPE"));
 
             string[] name = directory.Split(new char[] { '/', '\\' });
             output[3] = name[name.Length - 1];
@@ -263,7 +278,7 @@ using System.Text;
 
         static void ConvertToCsvAndCreate(string filename, Sbom[] sbom, string directory)
         {
-            if (File.Exists(Path.Combine(directory , filename + ".csv")))
+            if (File.Exists(Path.Combine(directory, filename + ".csv")))
                 File.Delete(Path.Combine(directory, filename + ".csv"));
 
             using (StreamWriter writer = new StreamWriter(Path.Combine(directory, filename + ".csv"), true))
@@ -302,7 +317,7 @@ using System.Text;
                 }
                 else
                 {
-                    if (File.Exists(Path.Combine(fileName , "log.txt")))
+                    if (File.Exists(Path.Combine(fileName, "log.txt")))
                         File.Delete(Path.Combine(fileName, "log.txt"));
 
                     using (StreamWriter sw = new StreamWriter(Path.Combine(fileName, "log.txt"), true))
@@ -318,15 +333,15 @@ using System.Text;
             }
         }
 
-        static  void ConvertFromSbomToSpdx(string filename, Sbom[] sbom, string directory)
+        static void ConvertFromSbomToSpdx(string filename, Sbom[] sbom, string directory)
         {
             for (int i = 0; i < sbom.Length; i++)
             {
-                if (!Directory.Exists(Path.Combine(directory , filename)))
+                if (!Directory.Exists(Path.Combine(directory, filename)))
                     Directory.CreateDirectory(Path.Combine(directory, filename));
 
 
-                string spdxName = Path.Combine(directory , filename , sbom[i].Directory + ".spdx");
+                string spdxName = Path.Combine(directory, filename, sbom[i].Directory + ".spdx");
                 ToSpdxFile(spdxName, sbom[i]);
             }
         }
@@ -349,7 +364,7 @@ using System.Text;
 
         static void ConvertToCsv(string filename, Sbom[] sbom, string directory, string[] csv)
         {
-            using (StreamWriter writer = new StreamWriter(Path.Combine(directory , filename + ".csv"), true))
+            using (StreamWriter writer = new StreamWriter(Path.Combine(directory, filename + ".csv"), true))
             {
 
                 for (int i = 0; i < sbom.Length; i++)

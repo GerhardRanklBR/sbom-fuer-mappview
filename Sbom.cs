@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ConsoleSBOM
 {
-    internal class Sbom
+    public class Sbom
     {
         private string _version;
         private string _sourceOfLicense;
