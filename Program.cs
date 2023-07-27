@@ -17,40 +17,50 @@ namespace ConsoleSBOM
                     {
                         if (args.Length >= 4)
                         {
+
                             bool[] optArgs = OptionalParameter(args);
 
                             Sbom[] sbom;
 
-                            sbom = CreateSbomArray(args[0], optArgs[0], optArgs[1], args[3]);
+                            string[] directories = FindLicensesFolders(args[0]);
 
-                            bool tmp = false;
+                            bool multipleLicenses = false;
 
-                            if (optArgs[2])
+                            foreach (string directory in directories)
                             {
-                                string[] csv;
+                                sbom = CreateSbomArray(directory, optArgs[0], optArgs[1], args[3]);
 
-                                if (File.Exists(Path.Combine(args[3], args[2] + ".csv")))
+                                bool tmp = false;
+
+                                if (optArgs[2] || multipleLicenses)
                                 {
-                                    csv = File.ReadAllLines(Path.Combine(args[3], args[2] + ".csv"));
-                                    ConvertToCsv(args[2], sbom, args[3], csv);
+                                    string[] csv;
+
+                                    if (File.Exists(Path.Combine(args[3], args[2] + ".csv")))
+                                    {
+                                        csv = File.ReadAllLines(Path.Combine(args[3], args[2] + ".csv"));
+                                        ConvertToCsv(args[2], sbom, args[3], csv);
+                                    }
+                                    else
+                                        tmp = true;
                                 }
                                 else
                                     tmp = true;
-                            }
-                            else
-                                tmp = true;
 
-                            if (tmp)
-                            {
-                                if (args[1] == "csv")
-                                    ConvertToCsvAndCreate(args[2], sbom, args[3]);
-                                if (args[1] == "spdx")
-                                    ConvertFromSbomToSpdx(args[2], sbom, args[3]);
-                                if (args[1] == "all")
+                                if (tmp)
                                 {
-                                    ConvertToCsvAndCreate(args[2], sbom, args[3]);
-                                    ConvertFromSbomToSpdx(args[2], sbom, args[3]);
+                                    if (args[1] == "csv")
+                                        ConvertToCsvAndCreate(args[2], sbom, args[3]);
+                                    if (args[1] == "spdx")
+                                        ConvertFromSbomToSpdx(args[2], sbom, args[3]);
+                                    if (args[1] == "all")
+                                    {
+                                        ConvertToCsvAndCreate(args[2], sbom, args[3]);
+                                        ConvertFromSbomToSpdx(args[2], sbom, args[3]);
+                                    }
                                 }
+
+                                multipleLicenses = directories.Length > 1;
                             }
 
                             Console.WriteLine("Done");
@@ -76,11 +86,11 @@ namespace ConsoleSBOM
                     Console.WriteLine();
                     Console.WriteLine("The fourth arg should be the full filepath to the directory, where the new file should end up");
                     Console.WriteLine();
-                    Console.WriteLine("The fifth arg should be log if a log should be provided");
+                    Console.WriteLine("[The fifth arg should be log if a log should be provided]");
                     Console.WriteLine();
-                    Console.WriteLine("The sixth arg should be file if the log should be provided in a file");
+                    Console.WriteLine("[The sixth arg should be file if the log should be provided in a file]");
                     Console.WriteLine();
-                    Console.WriteLine("The seventh arg should be add if the new csv should be added at the end of the old one");
+                    Console.WriteLine("[The seventh arg should be add if the new csv should be added at the end of the old one]");
                 }
             }
             else
@@ -106,7 +116,7 @@ namespace ConsoleSBOM
                     output[2] = true;
             }
 
-            if (output[0])
+            if (!output[0])
                 output[1] = false;
 
             return output;
@@ -216,6 +226,19 @@ namespace ConsoleSBOM
             return output;
         }
 
+        public static string[] FindLicensesFolders(string directory)
+        {
+            List<string> licensesFolders = new List<string>();
+            if (Directory.Exists(directory))
+            {
+                foreach (string dir in Directory.GetDirectories(directory, "Licenses", SearchOption.AllDirectories))
+                {
+                    licensesFolders.Add(dir);
+                }
+            }
+            return licensesFolders.ToArray();
+        }
+
         public static string LicenseCreator(string directory)
         {
             if (File.Exists(directory))
@@ -302,6 +325,7 @@ namespace ConsoleSBOM
 
         static void CreateLog(Sbom[] sbom, bool logFile, string fileName)
         {
+
             for (int i = 0; i < sbom.Length; i++)
             {
                 string name = sbom[i].Directory;
