@@ -2,7 +2,7 @@
   "profiles": {
     "ConsoleSboM": {
       "commandName": "Project",
-      "commandLineArgs": "Y:\\Vertrieb\\Application\\Exchange\\@BuchegegrJ csv tEst C:\\Users\\krippelf\\Downloads\\Test log file"
+      "commandLineArgs": "Y:\\Vertrieb\\Application\\Exchange\\@BuchegegrJ spdx tEst C:\\Users\\krippelf\\Downloads\\Test log file"
     }
   }
 }

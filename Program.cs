@@ -28,7 +28,7 @@ namespace ConsoleSBOM
 
                             foreach (string directory in directories)
                             {
-                                sbom = CreateSbomArray(directory, optArgs[0], optArgs[1], args[3]);
+                                sbom = CreateSbomArray(directory, optArgs[0], optArgs[1], args[3], multipleLicenses);
 
                                 bool tmp = false;
 
@@ -47,6 +47,9 @@ namespace ConsoleSBOM
                                 else
                                     tmp = true;
 
+                                tmp = args[1] == "all" || args[1] == "spdx";
+
+
                                 if (tmp)
                                 {
                                     if (args[1] == "csv")
@@ -55,7 +58,8 @@ namespace ConsoleSBOM
                                         ConvertFromSbomToSpdx(args[2], sbom, args[3]);
                                     if (args[1] == "all")
                                     {
-                                        ConvertToCsvAndCreate(args[2], sbom, args[3]);
+                                        if(!multipleLicenses)
+                                            ConvertToCsvAndCreate(args[2], sbom, args[3]);
                                         ConvertFromSbomToSpdx(args[2], sbom, args[3]);
                                     }
                                 }
@@ -136,7 +140,7 @@ namespace ConsoleSBOM
             return output;
         }
 
-        public static Sbom[] CreateSbomArray(string parentDirectory, bool createLog, bool logFile, string outputLoc)
+        public static Sbom[] CreateSbomArray(string parentDirectory, bool createLog, bool logFile, string outputLoc, bool multipleLicenses)
         {
             int posForNewValue = 0;
 
@@ -169,7 +173,7 @@ namespace ConsoleSBOM
             }
 
             if (createLog)
-                CreateLog(result, logFile, outputLoc);
+                CreateLog(result, logFile, outputLoc, multipleLicenses);
 
             return result;
         }
@@ -229,6 +233,7 @@ namespace ConsoleSBOM
         public static string[] FindLicensesFolders(string directory)
         {
             List<string> licensesFolders = new List<string>();
+
             if (Directory.Exists(directory))
             {
                 foreach (string dir in Directory.GetDirectories(directory, "Licenses", SearchOption.AllDirectories))
@@ -236,6 +241,7 @@ namespace ConsoleSBOM
                     licensesFolders.Add(dir);
                 }
             }
+
             return licensesFolders.ToArray();
         }
 
@@ -323,8 +329,10 @@ namespace ConsoleSBOM
             }
         }
 
-        static void CreateLog(Sbom[] sbom, bool logFile, string fileName)
+        static void CreateLog(Sbom[] sbom, bool logFile, string fileName, bool multipleLicenses)
         {
+            if (File.Exists(Path.Combine(fileName, "log.txt")) && logFile && !multipleLicenses)
+                File.Delete(Path.Combine(fileName, "log.txt"));
 
             for (int i = 0; i < sbom.Length; i++)
             {
@@ -341,9 +349,6 @@ namespace ConsoleSBOM
                 }
                 else
                 {
-                    if (File.Exists(Path.Combine(fileName, "log.txt")))
-                        File.Delete(Path.Combine(fileName, "log.txt"));
-
                     using (StreamWriter sw = new StreamWriter(Path.Combine(fileName, "log.txt"), true))
                     {
                         if (sbom[i].Version == String.Empty || sbom[i].Version == null)
