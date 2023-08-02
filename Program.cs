@@ -33,7 +33,7 @@ namespace ConsoleSBOM
 
                             foreach (string directory in directories)
                             {
-                                sbom = CreateSbomArray(directory, optArgs[0], optArgs[1], args[3], multipleLicenses);
+                                sbom = CreateSbomArray(directory, optArgs[0], optArgs[1], args[3], multipleLicenses).ToArray();
 
                                 bool tmp = false;
 
@@ -63,7 +63,7 @@ namespace ConsoleSBOM
                                         ConvertFromSbomToSpdx(args[2], sbom, args[3]);
                                     if (args[1] == "all")
                                     {
-                                        if(!multipleLicenses)
+                                        if (!multipleLicenses)
                                             ConvertToCsvAndCreate(args[2], sbom, args[3], germanOrEnglish);
                                         ConvertFromSbomToSpdx(args[2], sbom, args[3]);
                                     }
@@ -152,51 +152,22 @@ namespace ConsoleSBOM
             return output;
         }
 
-        public static Sbom[] CreateSbomArray(string parentDirectory, bool createLog, bool logFile, string outputLoc, bool multipleLicenses)
+        public static List<Sbom> CreateSbomArray(string parentDirectory, bool createLog, bool logFile, string outputLoc, bool multipleLicenses)
         {
-            int posForNewValue = 0;
-
             string[] directories = Directory.GetDirectories(parentDirectory);
 
-            Sbom[] result = new Sbom[SbomLengthChecker(directories)];
+            List<Sbom> result = new List<Sbom>();
 
             for (int i = 0; i < directories.Length; i++)
             {
-                if (DirectoryChecker(directories[i]))
-                {
-                    string[] values = ReadSbomValue(directories[i]);
-                    result[i] = CreateSbom(values);
-                }
-                else
-                {
-                    posForNewValue -= 1; // So the folder with other folders inside won't be counted;
-
-                    string[] daughterDirectories1 = Directory.GetDirectories(directories[i]);
-
-                    for (int j = 0; j < daughterDirectories1.Length; j++)
-                    {
-                        string[] values = ReadSbomValue(daughterDirectories1[j]);
-
-                        posForNewValue++;
-                        result[posForNewValue + i] = CreateSbom(values);
-
-                    }
-                }
+                string[] values = ReadSbomValue(directories[i]);
+                result.Add(CreateSbom(values));
             }
 
             if (createLog)
-                CreateLog(result, logFile, outputLoc, multipleLicenses);
+                CreateLog(result.ToArray(), logFile, outputLoc, multipleLicenses);
 
             return result;
-        }
-
-        static bool DirectoryChecker(string directoryToCheck)
-        {
-            if (File.Exists(Path.Combine(directoryToCheck, "lic-src.url")) || File.Exists(Path.Combine(directoryToCheck, "VERSION")) || File.Exists(Path.Combine(directoryToCheck, "LICENSETYPE")))
-            {
-                return true;
-            }
-            return false;
         }
 
         static string[] ReadSbomValue(string directory)
@@ -297,26 +268,6 @@ namespace ConsoleSBOM
             return output[5];
         }
 
-        static int SbomLengthChecker(string[] directories)
-        {
-            int output = 0;
-
-            for (int i = 0; i < directories.Length; i++)
-            {
-                if (DirectoryChecker(directories[i]))
-                {
-                    output++;
-                }
-                else
-                {
-                    string[] tmp = Directory.GetDirectories(directories[i]);
-                    output += SbomLengthChecker(tmp);
-                }
-            }
-
-            return output;
-        }
-
         static void ConvertToCsvAndCreate(string filename, Sbom[] sbom, string directory, string seperator)
         {
             if (File.Exists(Path.Combine(directory, filename + ".csv")))
@@ -328,13 +279,13 @@ namespace ConsoleSBOM
 
                 for (int i = 0; i < sbom.Length; i++)
                 {
-                    writer.Write((i + 1) + ";");
-                    writer.Write(sbom[i].Directory + ";");
-                    writer.Write(sbom[i].License + ";");
-                    writer.Write(sbom[i].SourceOfLicense + ";");
-                    writer.Write(sbom[i].Version + ";");
-                    writer.Write(sbom[i].SourceOfCode + ";");
-                    writer.Write(sbom[i].Purl + ";");
+                    writer.Write((i + 1) + seperator);
+                    writer.Write(sbom[i].Directory + seperator);
+                    writer.Write(sbom[i].License + seperator);
+                    writer.Write(sbom[i].SourceOfLicense + seperator);
+                    writer.Write(sbom[i].Version + seperator);
+                    writer.Write(sbom[i].SourceOfCode + seperator);
+                    writer.Write(sbom[i].Purl + seperator);
                     writer.WriteLine();
                 }
 
@@ -410,13 +361,13 @@ namespace ConsoleSBOM
 
                 for (int i = 0; i < sbom.Length; i++)
                 {
-                    writer.Write((i + csv.Length) + ";");
-                    writer.Write(sbom[i].Directory + ";");
-                    writer.Write(sbom[i].License + ";");
-                    writer.Write(sbom[i].SourceOfLicense + ";");
-                    writer.Write(sbom[i].Version + ";");
-                    writer.Write(sbom[i].SourceOfCode + ";");
-                    writer.Write(sbom[i].Purl + ";");
+                    writer.Write((i + csv.Length) + seperator);
+                    writer.Write(sbom[i].Directory + seperator);
+                    writer.Write(sbom[i].License + seperator);
+                    writer.Write(sbom[i].SourceOfLicense + seperator);
+                    writer.Write(sbom[i].Version + seperator);
+                    writer.Write(sbom[i].SourceOfCode + seperator);
+                    writer.Write(sbom[i].Purl + seperator);
                     writer.WriteLine();
                 }
 
