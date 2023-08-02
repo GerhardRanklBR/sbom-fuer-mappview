@@ -20,6 +20,11 @@ namespace ConsoleSBOM
 
                             bool[] optArgs = OptionalParameter(args);
 
+                            string germanOrEnglish = ";";
+
+                            if (optArgs[3])
+                                germanOrEnglish = ",";
+
                             Sbom[] sbom;
 
                             string[] directories = FindLicensesFolders(args[0]);
@@ -39,7 +44,7 @@ namespace ConsoleSBOM
                                     if (File.Exists(Path.Combine(args[3], args[2] + ".csv")))
                                     {
                                         csv = File.ReadAllLines(Path.Combine(args[3], args[2] + ".csv"));
-                                        ConvertToCsv(args[2], sbom, args[3], csv);
+                                        ConvertToCsv(args[2], sbom, args[3], csv, germanOrEnglish);
                                     }
                                     else
                                         tmp = true;
@@ -53,13 +58,13 @@ namespace ConsoleSBOM
                                 if (tmp)
                                 {
                                     if (args[1] == "csv")
-                                        ConvertToCsvAndCreate(args[2], sbom, args[3]);
+                                        ConvertToCsvAndCreate(args[2], sbom, args[3], germanOrEnglish);
                                     if (args[1] == "spdx")
                                         ConvertFromSbomToSpdx(args[2], sbom, args[3]);
                                     if (args[1] == "all")
                                     {
                                         if(!multipleLicenses)
-                                            ConvertToCsvAndCreate(args[2], sbom, args[3]);
+                                            ConvertToCsvAndCreate(args[2], sbom, args[3], germanOrEnglish);
                                         ConvertFromSbomToSpdx(args[2], sbom, args[3]);
                                     }
                                 }
@@ -95,6 +100,10 @@ namespace ConsoleSBOM
                     Console.WriteLine("[The sixth arg should be file if the log should be provided in a file]");
                     Console.WriteLine();
                     Console.WriteLine("[The seventh arg should be add if the new csv should be added at the end of the old one]");
+                    Console.WriteLine();
+                    Console.WriteLine("[The eighth arg should be a \",\" if the csv should use , as seperators");
+                    Console.WriteLine();
+                    Console.WriteLine("Note: The args in [] are interchangeable with another, the order doesn't mather");
                 }
             }
             else
@@ -106,7 +115,7 @@ namespace ConsoleSBOM
 
         static bool[] OptionalParameter(string[] input)
         {
-            bool[] output = new bool[3];
+            bool[] output = new bool[4];
 
             for (int i = 4; i < input.Length; i++)
             {
@@ -118,6 +127,9 @@ namespace ConsoleSBOM
 
                 if (input[i] == "add")
                     output[2] = true;
+
+                if (input[i] == ",")
+                    output[3] = true;
             }
 
             if (!output[0])
@@ -305,14 +317,14 @@ namespace ConsoleSBOM
             return output;
         }
 
-        static void ConvertToCsvAndCreate(string filename, Sbom[] sbom, string directory)
+        static void ConvertToCsvAndCreate(string filename, Sbom[] sbom, string directory, string seperator)
         {
             if (File.Exists(Path.Combine(directory, filename + ".csv")))
                 File.Delete(Path.Combine(directory, filename + ".csv"));
 
             using (StreamWriter writer = new StreamWriter(Path.Combine(directory, filename + ".csv"), true))
             {
-                writer.WriteLine($"0; Name; Version; Source of License; License; Source of Code; Purl;");
+                writer.WriteLine($"0;Name;Version;Source of License;License;Source of Code;Purl;");
 
                 for (int i = 0; i < sbom.Length; i++)
                 {
@@ -391,7 +403,7 @@ namespace ConsoleSBOM
             }
         }
 
-        static void ConvertToCsv(string filename, Sbom[] sbom, string directory, string[] csv)
+        static void ConvertToCsv(string filename, Sbom[] sbom, string directory, string[] csv, string seperator)
         {
             using (StreamWriter writer = new StreamWriter(Path.Combine(directory, filename + ".csv"), true))
             {
