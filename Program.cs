@@ -429,8 +429,15 @@ namespace ConsoleSBOM
                 {
                     writer.WriteLine("<tr>");
                     writer.Write("<td>" + sbom[i].Directory + "</td>");
-                    writer.Write($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <p>{sbom[i].License}</p></details> </td>");
-                    
+                    writer.Write("<td>" + sbom[i].Version + "</td>");
+                    if(!String.IsNullOrEmpty(sbom[i].License))
+                    {
+                        writer.Write($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <p>{sbom[i].License}</p></details> </td>");
+                    }
+                    else
+                    {
+                        writer.Write($"<td>{sbom[i].LicenseType}</td>");
+                    }
                     if (!String.IsNullOrEmpty(sbom[i].SourceOfLicense))
                     {
                         writer.Write($"<td><a href=\"{sbom[i].SourceOfLicense}\">link</a> </td>");
@@ -439,9 +446,6 @@ namespace ConsoleSBOM
                     {
                         writer.Write($"<td></td>");
                     }
-
-                    writer.Write("<td>" + sbom[i].Version + "</td>");
-
                     if (!String.IsNullOrEmpty(sbom[i].SourceOfCode))
                     {
                         writer.Write($"<td><a href=\"{sbom[i].SourceOfCode}\">link</a> </td>");
@@ -450,7 +454,6 @@ namespace ConsoleSBOM
                     {
                         writer.Write($"<td></td>");
                     }
-
                     writer.WriteLine("</tr>");
                 }
             }
@@ -471,7 +474,7 @@ namespace ConsoleSBOM
                     writer.WriteLine("<head>");
                     writer.WriteLine("<style>");
                     writer.WriteLine("table {border:1px solid black;}");
-                    writer.WriteLine("th, td {border:1px solid black; max-width: 50em; width: 50em;}");
+                    writer.WriteLine("th, td {border:1px solid black;}");
                     writer.WriteLine("</style>");
                     writer.WriteLine(BOOTSTRAP);
                     writer.WriteLine(JQUERY);
@@ -483,7 +486,7 @@ namespace ConsoleSBOM
                     writer.WriteLine("");
                     writer.WriteLine($"<table style=\"width:100%\" class=\"table table-striped {lightOrDarkTable}\">");
                     writer.WriteLine("<tr>");
-                    writer.WriteLine($"<th>Name</th><th>LicenseExpressions</th><th>Source of License</th><th>Version</th><th>Source of Code</th>");
+                    writer.WriteLine($"<th>Name</th><th>Version</th><th>LicenseExpressions</th><th>Source of License</th><th>Source of Code</th>");
                     writer.WriteLine("<tr>");
                 }
 
@@ -492,8 +495,15 @@ namespace ConsoleSBOM
                 {
                     writer.WriteLine("<tr>");
                     writer.Write("<td>" + sbom[i].Directory + "</td>");
-                    writer.Write($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <p>{sbom[i].License}</p></details> </td>");
-
+                    writer.Write("<td>" + sbom[i].Version + "</td>");
+                    if(!String.IsNullOrEmpty(sbom[i].License))
+                    {
+                        writer.Write($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <p>{sbom[i].License}</p></details> </td>");
+                    }
+                    else
+                    {
+                        writer.Write($"<td>{sbom[i].LicenseType}</td>");
+                    }
                     if (!String.IsNullOrEmpty(sbom[i].SourceOfLicense))
                     {
                         writer.Write($"<td><a href=\"{sbom[i].SourceOfLicense}\">link</a> </td>");
@@ -502,9 +512,6 @@ namespace ConsoleSBOM
                     {
                         writer.Write($"<td></td>");
                     }
-
-                    writer.Write("<td>" + sbom[i].Version + "</td>");
-
                     if (!String.IsNullOrEmpty(sbom[i].SourceOfCode))
                     {
                         writer.Write($"<td><a href=\"{sbom[i].SourceOfCode}\">link</a> </td>");
@@ -513,7 +520,6 @@ namespace ConsoleSBOM
                     {
                         writer.Write($"<td></td>");
                     }
-
                     writer.WriteLine("</tr>");
                 }
             }
