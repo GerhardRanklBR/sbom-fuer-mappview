@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Collections.Generic;
-
 namespace ConsoleSBOM
 {
     public class Program
@@ -521,4 +520,3 @@ namespace ConsoleSBOM
         }
     }
 }
-
