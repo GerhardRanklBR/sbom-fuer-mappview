@@ -80,11 +80,7 @@ namespace ConsoleSBOM
                                             tmp = true;
                                     }
                                 }
-                                else
-                                    tmp = true;
-
-
-                                if (tmp)
+                                else if (tmp)
                                 {
                                     if (filetype == "csv")
                                         ConvertToCsvAndCreate(filename, sbom, pathOutput, seperator);
@@ -461,7 +457,6 @@ namespace ConsoleSBOM
 
         static void ConvertToHtmlAndCreate(string filename, Sbom[] sbom, string directory, string lightOrDarkTable)
         {
-
             if (File.Exists(Path.Combine(directory, filename + ".html")))
                 File.Delete(Path.Combine(directory, filename + ".html"));
 
@@ -489,7 +484,6 @@ namespace ConsoleSBOM
                     writer.WriteLine($"<th>Name</th><th>Version</th><th>LicenseExpressions</th><th>Source of License</th><th>Source of Code</th>");
                     writer.WriteLine("<tr>");
                 }
-
 
                 for (int i = 0; i < sbom.Length; i++)
                 {
