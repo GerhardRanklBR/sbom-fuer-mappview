@@ -11,9 +11,10 @@ namespace ConsoleSBOM
         private string _version;
         private string _sourceOfLicense;
         private string _sourceOfCode;
-        private string _license;
+        private string _licenseType;
         private string _directory;
         private string _purl;
+        private string _license;
 
         public string Directory
         {
@@ -32,10 +33,10 @@ namespace ConsoleSBOM
             set { _sourceOfLicense = value; }
         }
 
-        public string License
+        public string LicenseType
         {
-            get { return _license; }
-            set { _license = value; }
+            get { return _licenseType; }
+            set { _licenseType = value; }
         }
 
         public string SourceOfCode
@@ -48,6 +49,12 @@ namespace ConsoleSBOM
         {
             get { return _purl; }
             set { _purl = value; }
+        }
+
+        public string License
+        {
+            get { return _license; }
+            set { _license = value; }
         }
     }
 }
