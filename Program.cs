@@ -332,6 +332,7 @@ namespace ConsoleSBOM
                 string path = Path.Combine(directory, filename);
 
                 PrepareDirForSpdx(path, newFile);
+                newFile = false;
 
                 string spdxName = Path.Combine(path, sbom[i].Directory);
                 int cnt = 0;
@@ -467,7 +468,7 @@ namespace ConsoleSBOM
                         writer.Write($"<td>{sbom[i].LicenseType}</td>");
                     }
 
-                    writer.WriteLine(String.IsNullOrEmpty(sbom[i].SourceOfLicense) ? "<td></td>" : $"<td><a href=\"{sbom[i].SourceOfLicense}\">code</a> </td>");
+                    writer.WriteLine(String.IsNullOrEmpty(sbom[i].SourceOfLicense) ? "<td></td>" : $"<td><a href=\"{sbom[i].SourceOfLicense}\">license</a> </td>");
                     writer.WriteLine(String.IsNullOrEmpty(sbom[i].SourceOfCode) ? "<td></td>" : $"<td><a href=\"{sbom[i].SourceOfCode}\">code</a> </td>");
 
                     writer.WriteLine("</tr>");
