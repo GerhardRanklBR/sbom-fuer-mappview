@@ -74,13 +74,13 @@ namespace ConsoleSBOM
                                         string path = Path.Combine(pathOutput, filename + ".html");
                                         if (File.Exists(path))
                                         {
-                                            ConvertToHtml(filename, sbom, pathOutput);
+                                            ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable);
                                         }
                                         else
                                             tmp = true;
                                     }
                                 }
-                                else if (tmp)
+                                else
                                 {
                                     if (filetype == "csv")
                                         ConvertToCsvAndCreate(filename, sbom, pathOutput, seperator);
@@ -164,17 +164,18 @@ namespace ConsoleSBOM
             return output;
         }
 
-        static Sbom CreateSbom(string[] values)
+        static Sbom CreateSbom(string directory)
         {
             Sbom output = new Sbom();
 
-            output.Version = values[0];
-            output.SourceOfLicense = values[1];
-            output.LicenseType = values[2];
-            output.Directory = values[3];
-            output.SourceOfCode = values[4];
-            output.Purl = values[5];
-            output.License = values[6];
+            output.Version = VersionCreator(Path.Combine(directory, "VERSION"));
+            output.SourceOfLicense = UrlCreator(Path.Combine(directory, "lic-src.url"))[0];
+            output.LicenseType = LicenseTypeCreator(Path.Combine(directory, "LICENSETYPE"));
+            string[] name = directory.Split(new char[] { '/', '\\' });
+            output.Directory = name[name.Length - 1];
+            output.SourceOfCode = UrlCreator(Path.Combine(directory, "lic-src.url"))[1];
+            output.Purl = PurlCreator(Path.Combine(directory, "PURL"));
+            output.License = LicenseCreator(Path.Combine(directory, "LICENSE"));
 
             return output;
         }
@@ -187,8 +188,7 @@ namespace ConsoleSBOM
 
             for (int i = 0; i < directories.Length; i++)
             {
-                string[] values = ReadSbomValue(directories[i]);
-                result.Add(CreateSbom(values));
+                result.Add(CreateSbom(directories[i]));
             }
 
             if (createLog)
@@ -197,45 +197,28 @@ namespace ConsoleSBOM
             return result;
         }
 
-        static string[] ReadSbomValue(string directory)
-        {
-            string[] output = new string[7];
-
-            output = UrlCreator(Path.Combine(directory, "lic-src.url"));
-            output[0] = VersionCreator(Path.Combine(directory, "VERSION"));
-            output[2] = LicenseTypeCreator(Path.Combine(directory, "LICENSETYPE"));
-
-            string[] name = directory.Split(new char[] { '/', '\\' });
-            output[3] = name[name.Length - 1];
-
-            output[5] = PurlCreator(output, directory);
-            output[6] = LicenseCreator(Path.Combine(directory, "LICENSE"));
-
-            return output;
-        }
-
         public static string[] UrlCreator(string directory)
         {
-            string[] output = new string[7];
+            string[] output = new string[2];
             if (File.Exists(directory))
             {
                 string[] lines = File.ReadAllLines(directory);
                 string[] splitLine = lines[4].Split('=');
 
-                output[1] = splitLine[splitLine.Length - 1];
+                output[0] = splitLine[splitLine.Length - 1];
 
                 string[] splitUrl = splitLine[splitLine.Length - 1].Split('/');
                 splitUrl[splitUrl.Length - 1] = String.Empty;
 
                 foreach (string word in splitUrl)
                 {
-                    output[4] += "/" + word;
+                    output[1] += "/" + word;
                 }
-                output[4] = output[4].Trim('/');
+                output[1] = output[1].Trim('/');
             }
             else
             {
-                output[1] = String.Empty;
+                output[0] = String.Empty;
             }
 
             return output;
@@ -268,15 +251,15 @@ namespace ConsoleSBOM
             }
         }
 
-        public static string LicenseCreator(string directory)
+        public static string[] LicenseCreator(string directory)
         {
             if (File.Exists(directory))
             {
-                return File.ReadAllText(directory);
+                return File.ReadAllLines(directory);
             }
             else
             {
-                return String.Empty;
+                return new string[1];
             }
         }
 
@@ -292,19 +275,16 @@ namespace ConsoleSBOM
             }
         }
 
-        static string PurlCreator(string[] input, string directory)
+        static string PurlCreator(string directory)
         {
-            string[] output = input;
-            if (File.Exists(Path.Combine(directory, "lic-src.url")) && File.Exists(Path.Combine(directory, "VERSION")))
+            if (File.Exists(directory))
             {
-                output[5] = "pkg:" + output[4].Replace(".com", "") + "@" + output[2];
+                return File.ReadAllText(directory);
             }
             else
             {
-                output[5] = String.Empty;
+                return String.Empty;
             }
-            output[5] = output[5].Replace("https://", "");
-            return output[5];
         }
 
         static void ConvertToCsvAndCreate(string filename, Sbom[] sbom, string directory, string seperator)
@@ -348,8 +328,10 @@ namespace ConsoleSBOM
                         Console.WriteLine($"There is no Url in {name}");
                     if (String.IsNullOrEmpty(sbom[i].LicenseType))
                         Console.WriteLine($"There is no Licensetype in {name}");
-                    if (String.IsNullOrEmpty(sbom[i].License))
+                    if (sbom[i].License.Length != 1)
                         Console.WriteLine($"There is no Licensetext in {name}");
+                    if (String.IsNullOrEmpty(sbom[i].Purl))
+                        Console.WriteLine($"There is no Purl in {name}");
                 }
                 else
                 {
@@ -361,8 +343,10 @@ namespace ConsoleSBOM
                             sw.WriteLine($"There is no Url in {name}");
                         if (String.IsNullOrEmpty(sbom[i].LicenseType))
                             sw.WriteLine($"There is no Licensetype in {name}");
-                        if (String.IsNullOrEmpty(sbom[i].License))
+                        if (sbom[i].License.Length != 1)
                             sw.WriteLine($"There is no Licensetext in {name}");
+                        if (String.IsNullOrEmpty(sbom[i].Purl))
+                            sw.WriteLine($"There is no Purl in {name}");
                     }
                 }
             }
@@ -417,18 +401,27 @@ namespace ConsoleSBOM
             }
         }
 
-        static void ConvertToHtml(string filename, Sbom[] sbom, string directory)
+        static void ConvertToHtml(string filename, Sbom[] sbom, string directory, string lightOrDarkTable)
         {
             using (StreamWriter writer = new StreamWriter(Path.Combine(directory, filename + ".html"), true))
             {
+                string color = "black";
+                if(lightOrDarkTable == "table-dark")
+                    color = "white";
+
                 for (int i = 0; i < sbom.Length; i++)
                 {
                     writer.WriteLine("<tr>");
                     writer.Write("<td>" + sbom[i].Directory + "</td>");
                     writer.Write("<td>" + sbom[i].Version + "</td>");
-                    if(!String.IsNullOrEmpty(sbom[i].License))
+                    if(sbom[i].License.Length != 1)
                     {
-                        writer.Write($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <p>{sbom[i].License}</p></details> </td>");
+                        writer.Write($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <pre style=\"color:{color};\">");
+                        foreach(string line in sbom[i].License)
+                        {
+                            writer.WriteLine(line);
+                        }
+                        writer.Write("</pre></details> </td>");
                     }
                     else
                     {
@@ -485,14 +478,23 @@ namespace ConsoleSBOM
                     writer.WriteLine("<tr>");
                 }
 
+                string color = "black";
+                if(lightOrDarkTable == "table-dark")
+                    color = "white";
+
                 for (int i = 0; i < sbom.Length; i++)
                 {
                     writer.WriteLine("<tr>");
                     writer.Write("<td>" + sbom[i].Directory + "</td>");
                     writer.Write("<td>" + sbom[i].Version + "</td>");
-                    if(!String.IsNullOrEmpty(sbom[i].License))
+                    if(sbom[i].License.Length != 1)
                     {
-                        writer.Write($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <p>{sbom[i].License}</p></details> </td>");
+                        writer.Write($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <pre style=\"color:{color};\">");
+                        foreach(string line in sbom[i].License)
+                        {
+                            writer.WriteLine(line);
+                        }
+                        writer.Write("</pre></details> </td>");
                     }
                     else
                     {

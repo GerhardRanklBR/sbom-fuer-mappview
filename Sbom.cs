@@ -14,7 +14,7 @@ namespace ConsoleSBOM
         private string _licenseType;
         private string _directory;
         private string _purl;
-        private string _license;
+        private string[] _license;
 
         public string Directory
         {
@@ -51,7 +51,7 @@ namespace ConsoleSBOM
             set { _purl = value; }
         }
 
-        public string License
+        public string[] License
         {
             get { return _license; }
             set { _license = value; }
