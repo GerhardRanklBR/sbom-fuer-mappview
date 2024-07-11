@@ -86,8 +86,6 @@ namespace ConsoleSBOM
                                         ConvertToCsvAndCreate(filename, sbom, pathOutput, seperator);
                                     if (filetype == "html")
                                         ConvertToHtmlAndCreate(filename, sbom, pathOutput, lightOrDarkTable);
-                                    if (filetype == "spdx")
-                                        ConvertFromSbomToSpdx(filename, sbom, pathOutput);
                                     if (filetype == "all")
                                     {
                                         if (!multipleLicenses)
@@ -95,8 +93,11 @@ namespace ConsoleSBOM
                                             ConvertToCsvAndCreate(filename, sbom, pathOutput, seperator);
                                             ConvertToHtmlAndCreate(filename, sbom, pathOutput, lightOrDarkTable);
                                         }
-                                        ConvertFromSbomToSpdx(filename, sbom, pathOutput);
                                     }
+                                }
+
+                                if(filetype == "spdx" || filetype == "all"){
+                                    ConvertFromSbomToSpdx(filename, sbom, pathOutput);
                                 }
 
                                 multipleLicenses = directories.Length > 1;
