@@ -43,19 +43,15 @@ namespace ConsoleSBOM
 
                             string[] directories = FindLicensesFolders(pathLibraries);
 
-                            bool multipleLicenses = false;
+                            bool addToFile = optArgsBool[2];
 
                             bool newSpdx = true;
 
                             foreach (string directory in directories)
                             {
-                                sbom = CreateSbomList(directory, optArgsBool[0], optArgsBool[1], pathOutput, multipleLicenses).ToArray();
+                                sbom = CreateSbomList(directory, optArgsBool[0], optArgsBool[1], pathOutput, addToFile).ToArray();
 
-                                bool tmp = false;
-
-                                tmp = filetype == "all" || filetype == "spdx";
-
-                                if (optArgsBool[2] || multipleLicenses)
+                                if (addToFile)
                                 {
                                     if (filetype == "csv" || filetype == "all")
                                     {
@@ -66,9 +62,6 @@ namespace ConsoleSBOM
                                             csv = File.ReadAllLines(Path.Combine(pathOutput, filename + ".csv"));
                                             ConvertToCsv(filename, sbom, pathOutput, csv.Length, seperator, false);
                                         }
-                                        else
-                                            tmp = true;
-
                                     }
 
                                     if (filetype == "html" || filetype == "all")
@@ -78,8 +71,6 @@ namespace ConsoleSBOM
                                         {
                                             ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, false);
                                         }
-                                        else
-                                            tmp = true;
                                     }
                                 }
                                 else
@@ -90,7 +81,7 @@ namespace ConsoleSBOM
                                         ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
                                     if (filetype == "all")
                                     {
-                                        if (!multipleLicenses)
+                                        if (!addToFile)
                                         {
                                             ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
                                             ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
@@ -104,7 +95,7 @@ namespace ConsoleSBOM
                                     newSpdx = false;
                                 }
 
-                                multipleLicenses = directories.Length > 1;
+                                addToFile = directories.Length > 1;
                             }
 
                             Console.WriteLine("Done");
@@ -224,6 +215,7 @@ namespace ConsoleSBOM
             else
             {
                 output[0] = String.Empty;
+                output[1] = String.Empty;
             }
 
             return output;
@@ -292,7 +284,6 @@ namespace ConsoleSBOM
             }
         }
 
-
         static void CreateLog(Sbom[] sbom, bool logFile, string fileName, bool multipleLicenses)
         {
             if (File.Exists(Path.Combine(fileName, "log.txt")) && logFile && !multipleLicenses)
@@ -340,7 +331,23 @@ namespace ConsoleSBOM
             {
                 string path = Path.Combine(directory, filename);
 
-                if (Directory.Exists(path) && newFile)
+                PrepareDirForSpdx(path, newFile);
+
+                string spdxName = Path.Combine(path, sbom[i].Directory);
+                int cnt = 0;
+                while (File.Exists(cnt == 0 ? spdxName + ".spdx" : $"{spdxName}({cnt}).spdx"))
+                {
+                    cnt++;
+                }
+                spdxName = cnt == 0 ? spdxName : $"{spdxName}({cnt})";
+                spdxName += ".spdx";
+
+                ToSpdxFile(spdxName, sbom[i]);
+            }
+        }
+
+        static void PrepareDirForSpdx(string path, bool newFile){
+            if (Directory.Exists(path) && newFile)
                 {
                     System.IO.DirectoryInfo di = new DirectoryInfo(path);
                     foreach (FileInfo file in di.GetFiles())
@@ -357,18 +364,6 @@ namespace ConsoleSBOM
                 {
                     Directory.CreateDirectory(path);
                 }
-
-                string spdxName = Path.Combine(path, sbom[i].Directory);
-                int cnt = 0;
-                while (File.Exists(cnt == 0 ? spdxName + ".spdx" : $"{spdxName} ({cnt}).spdx"))
-                {
-                    cnt++;
-                }
-                spdxName = cnt == 0 ? spdxName : $"{spdxName} ({cnt})";
-                spdxName += ".spdx";
-
-                ToSpdxFile(spdxName, sbom[i]);
-            }
         }
 
         static void ToSpdxFile(string fileName, Sbom sbom)
@@ -451,46 +446,30 @@ namespace ConsoleSBOM
                         writer.WriteLine($"<th>Name</th><th>Version</th><th>LicenseExpressions</th><th>Source of License</th><th>Source of Code</th>");
                         writer.WriteLine("<tr>");
                     }
-
                 }
-                string color = "black";
-                if (lightOrDarkTable == "table-dark")
-                    color = "white";
-
+                string color = lightOrDarkTable == "table-dark" ? "white" : "black";
                 for (int i = 0; i < sbom.Length; i++)
                 {
                     writer.WriteLine("<tr>");
-                    writer.Write("<td>" + sbom[i].Directory + "</td>");
-                    writer.Write("<td>" + sbom[i].Version + "</td>");
+                    writer.WriteLine("<td>" + sbom[i].Directory + "</td>");
+                    writer.WriteLine("<td>" + sbom[i].Version + "</td>");
                     if (sbom[i].License.Length != 1)
                     {
-                        writer.Write($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <pre style=\"color:{color};\">");
+                        writer.WriteLine($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <pre style=\"color:{color};\">");
                         foreach (string line in sbom[i].License)
                         {
                             writer.WriteLine(line);
                         }
-                        writer.Write("</pre></details> </td>");
+                        writer.WriteLine("</pre></details> </td>");
                     }
                     else
                     {
                         writer.Write($"<td>{sbom[i].LicenseType}</td>");
                     }
-                    if (!String.IsNullOrEmpty(sbom[i].SourceOfLicense))
-                    {
-                        writer.Write($"<td><a href=\"{sbom[i].SourceOfLicense}\">license</a> </td>");
-                    }
-                    else
-                    {
-                        writer.Write($"<td></td>");
-                    }
-                    if (!String.IsNullOrEmpty(sbom[i].SourceOfCode))
-                    {
-                        writer.Write($"<td><a href=\"{sbom[i].SourceOfCode}\">code</a> </td>");
-                    }
-                    else
-                    {
-                        writer.Write($"<td></td>");
-                    }
+
+                    writer.WriteLine(String.IsNullOrEmpty(sbom[i].SourceOfLicense) ? "<td></td>" : $"<td><a href=\"{sbom[i].SourceOfLicense}\">code</a> </td>");
+                    writer.WriteLine(String.IsNullOrEmpty(sbom[i].SourceOfCode) ? "<td></td>" : $"<td><a href=\"{sbom[i].SourceOfCode}\">code</a> </td>");
+
                     writer.WriteLine("</tr>");
                 }
             }
