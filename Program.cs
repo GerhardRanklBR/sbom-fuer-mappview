@@ -121,7 +121,7 @@ namespace ConsoleSBOM
                     Console.WriteLine("[The sixth arg should be \"file\" if the log should be provided in a file]");
                     Console.WriteLine("[The seventh arg should be \"add\" if the new csv should be added at the end of the old one]");
                     Console.WriteLine("[The eighth arg should be a \",\" if the csv should use , as seperators");
-                    Console.WriteLine("[The ninth arg should be \"dark\" if the html table shoul be in darkmode]");
+                    Console.WriteLine("[The ninth arg should be \"dark\" if the html table should be in dark mode]");
                     Console.WriteLine("Note: The args in [] are interchangeable with another, the order doesn't matter");
                     Console.WriteLine("----------------------------------------------------------------------------------------------");
 
@@ -347,24 +347,25 @@ namespace ConsoleSBOM
             }
         }
 
-        static void PrepareDirForSpdx(string path, bool newFile){
+        static void PrepareDirForSpdx(string path, bool newFile)
+        {
             if (Directory.Exists(path) && newFile)
+            {
+                System.IO.DirectoryInfo di = new DirectoryInfo(path);
+                foreach (FileInfo file in di.GetFiles())
                 {
-                    System.IO.DirectoryInfo di = new DirectoryInfo(path);
-                    foreach (FileInfo file in di.GetFiles())
-                    {
-                        file.Delete();
-                    }
-                    foreach (DirectoryInfo dir in di.GetDirectories())
-                    {
-                        dir.Delete(true);
-                    }
+                    file.Delete();
                 }
+                foreach (DirectoryInfo dir in di.GetDirectories())
+                {
+                    dir.Delete(true);
+                }
+            }
 
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
         }
 
         static void ToSpdxFile(string fileName, Sbom sbom)
@@ -423,6 +424,7 @@ namespace ConsoleSBOM
 
             using (StreamWriter writer = new StreamWriter(Path.Combine(directory, filename + ".html"), true))
             {
+                bool darkmode = lightOrDarkTable == "table-dark";
                 if (newFile)
                 {
                     // Print HTML Header
@@ -439,7 +441,7 @@ namespace ConsoleSBOM
                         writer.WriteLine(JSDELIVRPOPPER);
                         writer.WriteLine(JSDELIVRBOOTSTRAP);
                         writer.WriteLine("</head>");
-                        writer.WriteLine("<body>");
+                        writer.WriteLine("<body class=\"bg-" + (darkmode ? "dark" : "light") + "\">");
                         writer.WriteLine("</br>");
                         writer.WriteLine("");
                         writer.WriteLine($"<table style=\"width:100%\" class=\"table table-striped {lightOrDarkTable}\">");
@@ -448,7 +450,7 @@ namespace ConsoleSBOM
                         writer.WriteLine("<tr>");
                     }
                 }
-                string color = lightOrDarkTable == "table-dark" ? "white" : "black";
+                string color = darkmode ? "white" : "black";
                 for (int i = 0; i < sbom.Length; i++)
                 {
                     writer.WriteLine("<tr>");
