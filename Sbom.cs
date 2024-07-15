@@ -16,6 +16,16 @@ namespace ConsoleSBOM
         private string _purl;
         private string[] _license;
 
+        public Sbom(){
+            _license = new string[0];
+            _version = String.Empty;
+            _sourceOfLicense = String.Empty;
+            _sourceOfCode = String.Empty;
+            _licenseType = String.Empty;
+            _directory = String.Empty;
+            _purl = String.Empty;
+        }
+
         public string Directory
         {
             get { return _directory; }
