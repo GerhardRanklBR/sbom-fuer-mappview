@@ -112,18 +112,17 @@ namespace ConsoleSBOM
                 }
                 else // /h
                 {
-                    Console.WriteLine("----------------------------------------------------------------------------------------------");
+                    Console.WriteLine("--------------------------------------------------------------------------------------------------------------------");
                     Console.WriteLine("The first arg should be the complete filepath to the libaries");
                     Console.WriteLine("The second should be the filetype of the file (\"csv\", \"xmll\", \"html\", \"all\")");
                     Console.WriteLine("The third value should be the output filename");
                     Console.WriteLine("The fourth arg should be the full filepath to the directory, where the new file should end up");
-                    Console.WriteLine("[The fifth arg should be \"log\" if a log should be provided]");
-                    Console.WriteLine("[The sixth arg should be \"file\" if the log should be provided in a file]");
-                    Console.WriteLine("[The seventh arg should be \"add\" if the new csv should be added at the end of the old one]");
-                    Console.WriteLine("[The eighth arg should be a \",\" if the csv should use , as seperators");
-                    Console.WriteLine("[The ninth arg should be \"dark\" if the html table should be in dark mode]");
+                    Console.WriteLine("[The fifth arg should be \"log\" if a log should be provided and \"logfile\" if the log should be in a file instead]");
+                    Console.WriteLine("[The sixth arg should be \"add\" if the new csv should be added at the end of the old one]");
+                    Console.WriteLine("[The seventh arg should be a \",\" if the csv should use , as seperators");
+                    Console.WriteLine("[The eigth arg should be \"dark\" if the html table should be in dark mode]");
                     Console.WriteLine("Note: The args in [] are interchangeable with another, the order doesn't matter");
-                    Console.WriteLine("----------------------------------------------------------------------------------------------");
+                    Console.WriteLine("--------------------------------------------------------------------------------------------------------------------");
 
                 }
             }
@@ -141,8 +140,11 @@ namespace ConsoleSBOM
                 if (input[i] == "log")
                     output[0] = true;
 
-                if (input[i] == "file")
+                if (input[i] == "logfile")
+                {
+                    output[0] = true;
                     output[1] = true;
+                }
 
                 if (input[i] == "add")
                     output[2] = true;
@@ -153,9 +155,6 @@ namespace ConsoleSBOM
                 if (input[i] == "dark")
                     output[4] = true;
             }
-
-            if (!output[0])
-                output[1] = false;
 
             return output;
         }
