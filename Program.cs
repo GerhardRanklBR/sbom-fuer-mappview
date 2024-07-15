@@ -131,6 +131,7 @@ namespace ConsoleSBOM
                 Console.WriteLine("Not enough parameter");
             }
         }
+
         static bool[] OptionalParameter(string[] input)
         {
             bool[] output = new bool[5];
@@ -300,7 +301,7 @@ namespace ConsoleSBOM
                         Console.WriteLine($"There is no Url in {name}");
                     if (String.IsNullOrEmpty(sbom[i].LicenseType))
                         Console.WriteLine($"There is no Licensetype in {name}");
-                    if (sbom[i].License.Length != 1)
+                    if (sbom[i].License.Length == 1)
                         Console.WriteLine($"There is no Licensetext in {name}");
                     if (String.IsNullOrEmpty(sbom[i].Purl))
                         Console.WriteLine($"There is no Purl in {name}");
@@ -315,7 +316,7 @@ namespace ConsoleSBOM
                             sw.WriteLine($"There is no Url in {name}");
                         if (String.IsNullOrEmpty(sbom[i].LicenseType))
                             sw.WriteLine($"There is no Licensetype in {name}");
-                        if (sbom[i].License.Length != 1)
+                        if (sbom[i].License.Length == 1)
                             sw.WriteLine($"There is no Licensetext in {name}");
                         if (String.IsNullOrEmpty(sbom[i].Purl))
                             sw.WriteLine($"There is no Purl in {name}");
@@ -445,8 +446,10 @@ namespace ConsoleSBOM
                         writer.WriteLine("");
                         writer.WriteLine($"<table style=\"width:100%\" class=\"table table-striped {lightOrDarkTable}\">");
                         writer.WriteLine("<tr>");
-                        writer.WriteLine($"<th>Name</th><th>Version</th><th>LicenseExpressions</th><th>Source of License</th><th>Source of Code</th>");
-                        writer.WriteLine("<tr>");
+                        writer.WriteLine("<thead class=\"thead-" + (darkmode ? "light" : "dark") + "\">");
+                        writer.WriteLine($"<th>Name</th><th>Version</th><th>License Expressions</th><th>Source of License</th><th>Source of Code</th>");
+                        writer.WriteLine("</thead>");
+                        writer.WriteLine("</tr>");
                     }
                 }
                 string color = darkmode ? "white" : "black";
