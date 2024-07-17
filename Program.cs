@@ -286,8 +286,7 @@ namespace ConsoleSBOM
 
         static void CreateLog(Sbom[] sbom, bool logFile, string fileName, bool multipleLicenses)
         {
-            if (File.Exists(Path.Combine(fileName, "log.txt")) && logFile && !multipleLicenses)
-                File.Delete(Path.Combine(fileName, "log.txt"));
+            DeleteFile(Path.Combine(fileName, "log.txt"), logFile && !multipleLicenses);
 
             for (int i = 0; i < sbom.Length; i++)
             {
@@ -347,9 +346,9 @@ namespace ConsoleSBOM
             }
         }
 
-        static void PrepareDirForSpdx(string path, bool newFile)
+        static void PrepareDirForSpdx(string path, bool replaceOldFile)
         {
-            if (Directory.Exists(path) && newFile)
+            if (Directory.Exists(path) && replaceOldFile)
             {
                 System.IO.DirectoryInfo di = new DirectoryInfo(path);
                 foreach (FileInfo file in di.GetFiles())
@@ -386,11 +385,7 @@ namespace ConsoleSBOM
 
         static void ConvertToCsv(string filename, Sbom[] sbom, string directory, int length, string seperator, bool newFile)
         {
-            if (newFile)
-            {
-                if (File.Exists(Path.Combine(directory, filename + ".csv")))
-                    File.Delete(Path.Combine(directory, filename + ".csv"));
-            }
+            DeleteFile(Path.Combine(directory, filename + ".csv"), newFile);
 
             using (StreamWriter writer = new StreamWriter(Path.Combine(directory, filename + ".csv"), true))
             {
@@ -414,13 +409,10 @@ namespace ConsoleSBOM
             }
         }
 
+
         static void ConvertToHtml(string filename, Sbom[] sbom, string directory, string lightOrDarkTable, bool newFile)
         {
-            if (newFile)
-            {
-                if (File.Exists(Path.Combine(directory, filename + ".html")))
-                    File.Delete(Path.Combine(directory, filename + ".html"));
-            }
+            DeleteFile(Path.Combine(directory, filename + ".html"), newFile);
 
             using (StreamWriter writer = new StreamWriter(Path.Combine(directory, filename + ".html"), true))
             {
@@ -477,6 +469,15 @@ namespace ConsoleSBOM
 
                     writer.WriteLine("</tr>");
                 }
+            }
+        }
+        
+        static void DeleteFile(string directory, bool delete)
+        {
+            if (delete)
+            {
+                if (File.Exists(directory))
+                    File.Delete(directory);
             }
         }
     }
