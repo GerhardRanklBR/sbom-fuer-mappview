@@ -12,7 +12,7 @@ namespace ConsoleSBOM
         private string _sourceOfLicense;
         private string _sourceOfCode;
         private string _licenseType;
-        private string _directory;
+        private string _name;
         private string _purl;
         private string[] _license;
 
@@ -22,14 +22,14 @@ namespace ConsoleSBOM
             _sourceOfLicense = String.Empty;
             _sourceOfCode = String.Empty;
             _licenseType = String.Empty;
-            _directory = String.Empty;
+            _name = String.Empty;
             _purl = String.Empty;
         }
 
-        public string Directory
+        public string Name
         {
-            get { return _directory; }
-            set { _directory = value; }
+            get { return _name; }
+            set { _name = value; }
         }
         public string Version
         {

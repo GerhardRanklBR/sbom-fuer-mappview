@@ -12,7 +12,6 @@ namespace ConsoleSBOM
         const string JSDELIVRPOPPER = "<script src=\"https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js\" integrity=\"sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo\" crossorigin=\"anonymous\" defer></script>";
         const string JSDELIVRBOOTSTRAP = "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js\" integrity=\"sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6\" crossorigin=\"anonymous\" defer></script>";
 
-
         static void Main(string[] args)
         {
             if (args.Length > 0)
@@ -168,7 +167,7 @@ namespace ConsoleSBOM
             output.SourceOfLicense = UrlCreator(Path.Combine(directory, "lic-src.url"))[0];
             output.LicenseType = LicenseTypeCreator(Path.Combine(directory, "LICENSETYPE"));
             string[] name = directory.Split(new char[] { '/', '\\' });
-            output.Directory = name[name.Length - 1];
+            output.Name = name[name.Length - 1];
             output.SourceOfCode = UrlCreator(Path.Combine(directory, "lic-src.url"))[1];
             output.Purl = PurlCreator(Path.Combine(directory, "PURL"));
             output.License = LicenseCreator(Path.Combine(directory, "LICENSE"));
@@ -176,9 +175,11 @@ namespace ConsoleSBOM
             return output;
         }
 
+
+
         public static List<Sbom> CreateSbomList(string parentDirectory, bool createLog, bool logFile, string outputLoc, bool multipleLicenses)
         {
-            string[] directories = Directory.GetDirectories(parentDirectory);
+            string[] directories = FindFoldersWithLicenses(parentDirectory);
 
             List<Sbom> result = new List<Sbom>();
 
@@ -230,6 +231,21 @@ namespace ConsoleSBOM
                 foreach (string dir in Directory.GetDirectories(directory, "Licenses", SearchOption.AllDirectories))
                 {
                     licensesFolders.Add(dir);
+                }
+            }
+
+            return licensesFolders.ToArray();
+        }
+
+        public static string[] FindFoldersWithLicenses(string directory)
+        {
+            List<string> licensesFolders = new List<string>();
+
+            if (Directory.Exists(directory))
+            {
+                foreach (string file in Directory.GetFiles(directory, "LICENSE", SearchOption.AllDirectories))
+                {
+                    licensesFolders.Add(Path.GetDirectoryName(file)!);
                 }
             }
 
@@ -290,7 +306,7 @@ namespace ConsoleSBOM
 
             for (int i = 0; i < sbom.Length; i++)
             {
-                string name = sbom[i].Directory;
+                string name = sbom[i].Name;
 
                 if (!logFile)
                 {
@@ -333,7 +349,7 @@ namespace ConsoleSBOM
                 PrepareDirForSpdx(path, newFile);
                 newFile = false;
 
-                string spdxName = Path.Combine(path, sbom[i].Directory);
+                string spdxName = Path.Combine(path, sbom[i].Name);
                 int cnt = 0;
                 while (File.Exists(cnt == 0 ? spdxName + ".spdx" : $"{spdxName}({cnt}).spdx"))
                 {
@@ -373,7 +389,7 @@ namespace ConsoleSBOM
             {
                 sw.WriteLine("SPDXVersion: SPDX-2.2");
                 sw.WriteLine("DataLicense: CC0-1.0");
-                sw.WriteLine($"PackageName: {sbom.Directory}");
+                sw.WriteLine($"PackageName: {sbom.Name}");
                 sw.WriteLine($"PackageVersion: {sbom.Version}");
                 sw.WriteLine($"PackageDownloadLocation: {sbom.SourceOfCode}");
                 sw.WriteLine($"PackageLicenseDeclared: {sbom.LicenseType}");
@@ -397,7 +413,7 @@ namespace ConsoleSBOM
                 for (int i = 0; i < sbom.Length; i++)
                 {
                     writer.Write((i + length) + seperator);
-                    writer.Write(sbom[i].Directory + seperator);
+                    writer.Write(sbom[i].Name + seperator);
                     writer.Write(sbom[i].LicenseType + seperator);
                     writer.Write(sbom[i].SourceOfLicense + seperator);
                     writer.Write(sbom[i].Version + seperator);
@@ -409,7 +425,6 @@ namespace ConsoleSBOM
             }
         }
 
-
         static void ConvertToHtml(string filename, Sbom[] sbom, string directory, string lightOrDarkTable, bool newFile)
         {
             DeleteFile(Path.Combine(directory, filename + ".html"), newFile);
@@ -417,6 +432,7 @@ namespace ConsoleSBOM
             using (StreamWriter writer = new StreamWriter(Path.Combine(directory, filename + ".html"), true))
             {
                 bool darkmode = lightOrDarkTable == "table-dark";
+                string color = darkmode ? "white" : "black";
                 if (newFile)
                 {
                     // Print HTML Header
@@ -444,11 +460,10 @@ namespace ConsoleSBOM
                         writer.WriteLine("</tr>");
                     }
                 }
-                string color = darkmode ? "white" : "black";
                 for (int i = 0; i < sbom.Length; i++)
                 {
                     writer.WriteLine("<tr>");
-                    writer.WriteLine("<td>" + sbom[i].Directory + "</td>");
+                    writer.WriteLine("<td>" + sbom[i].Name + "</td>");
                     writer.WriteLine("<td>" + sbom[i].Version + "</td>");
                     if (sbom[i].License.Length != 1)
                     {
@@ -471,7 +486,7 @@ namespace ConsoleSBOM
                 }
             }
         }
-        
+
         static void DeleteFile(string directory, bool delete)
         {
             if (delete)
