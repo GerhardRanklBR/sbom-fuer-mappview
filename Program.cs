@@ -13,6 +13,7 @@ namespace ConsoleSBOM
         const string JSDELIVRPOPPER = "<script src=\"https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js\" integrity=\"sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo\" crossorigin=\"anonymous\" defer></script>";
         const string JSDELIVRBOOTSTRAP = "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js\" integrity=\"sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6\" crossorigin=\"anonymous\" defer></script>";
 
+        public static List<string[]> libraries = new List<string[]>();
         static void Main(string[] args)
         {
             if (args.Length > 0)
@@ -116,17 +117,18 @@ namespace ConsoleSBOM
                 }
                 else // /h
                 {
-                    Console.WriteLine("--------------------------------------------------------------------------------------------------------------------");
+                    Console.WriteLine("----------------------------------------------------------------------------------------------------------");
                     Console.WriteLine("The first arg should be the complete filepath to the libaries");
                     Console.WriteLine("The second should be the filetype of the file (\"csv\", \"xmll\", \"html\", \"all\")");
                     Console.WriteLine("The third value should be the output filename");
                     Console.WriteLine("The fourth arg should be the full filepath to the directory, where the new file should end up");
-                    Console.WriteLine("[The fifth arg should be \"log\" if a log should be provided and \"logfile\" if the log should be in a file instead]");
-                    Console.WriteLine("[The sixth arg should be \"add\" if the new csv should be added at the end of the old one]");
-                    Console.WriteLine("[The seventh arg should be a \",\" if the csv should use , as seperators");
-                    Console.WriteLine("[The eigth arg should be \"dark\" if the html table should be in dark mode]");
+                    Console.WriteLine("[Should be the filepath to a sbom.json header formated in a specific way]");
+                    Console.WriteLine("[Should be \"log\" if a log should be provided and \"logfile\" if the log should be in a file instead]");
+                    Console.WriteLine("[Should be \"add\" if the new csv should be added at the end of the old one]");
+                    Console.WriteLine("[Should be a \",\" if the csv should use , as seperators");
+                    Console.WriteLine("[Should be \"dark\" if the html table should be in dark mode]");
                     Console.WriteLine("Note: The args in [] are interchangeable with another, the order doesn't matter");
-                    Console.WriteLine("--------------------------------------------------------------------------------------------------------------------");
+                    Console.WriteLine("----------------------------------------------------------------------------------------------------------");
 
                 }
             }
@@ -192,13 +194,32 @@ namespace ConsoleSBOM
 
             for (int i = 0; i < directories.Length; i++)
             {
-                result.Add(CreateSbom(directories[i]));
+                Sbom sbomToAdd = CreateSbom(directories[i]);
+                
+                if(!CheckRepeatingLibrary(sbomToAdd))
+                    result.Add(sbomToAdd);
             }
 
             if (createLog)
                 CreateLog(result.ToArray(), logFile, outputLoc, multipleLicenses);
 
             return result;
+        }
+
+        public static bool CheckRepeatingLibrary(Sbom sbomToAdd)
+        {
+            string[] tmp = { sbomToAdd.Name, sbomToAdd.Version + "" };
+
+            foreach(string[] library in libraries)
+            {
+                if(library[0] == tmp[0] && library[1] == tmp[1])
+                {
+                    return true;
+                }
+            }
+
+            libraries.Add(tmp);
+            return false;
         }
 
         public static string[] UrlCreator(string directory)
@@ -366,7 +387,7 @@ namespace ConsoleSBOM
                 Array.Resize(ref header, header.Length - 2);
             }
 
-            using (StreamWriter writer = new StreamWriter(filename, false))
+            using (StreamWriter writer = new StreamWriter(filename, !newFile))
             {
 
                 foreach (string line in header)
@@ -403,7 +424,7 @@ namespace ConsoleSBOM
         {
             filename = Path.Combine(directory, filename + ".csv");
 
-            using (StreamWriter writer = new StreamWriter(filename, newFile))
+            using (StreamWriter writer = new StreamWriter(filename, !newFile))
             {
                 if (newFile)
                 {
@@ -428,7 +449,7 @@ namespace ConsoleSBOM
         static void ConvertToHtml(string filename, Sbom[] sbom, string directory, string lightOrDarkTable, bool newFile)
         {
             filename = Path.Combine(directory, filename + ".html");
-            using (StreamWriter writer = new StreamWriter(filename, newFile))
+            using (StreamWriter writer = new StreamWriter(filename, !newFile))
             {
                 bool darkmode = lightOrDarkTable == "table-dark";
                 string color = darkmode ? "white" : "black";

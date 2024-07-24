@@ -2,7 +2,7 @@
   "profiles": {
     "ConsoleSboM": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\krippelf\\Downloads\\CloneWar spdx sbom C:\\Users\\krippelf\\Downloads\\ProjektAusgaben logfile dark C:\\Users\\krippelf\\Downloads\\Test\\input.json"
+      "commandLineArgs": "C:\\Users\\krippelf\\Downloads\\CloneWar all sbom C:\\Users\\krippelf\\Downloads\\ProjektAusgaben logfile dark C:\\Users\\krippelf\\Downloads\\Test\\input.json"
     }
   }
 }
