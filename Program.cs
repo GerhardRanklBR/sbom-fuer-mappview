@@ -96,7 +96,8 @@ namespace ConsoleSBOM
                                     {
                                         ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
                                         ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
-                                        ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
+                                        if(createSpdx)
+                                            ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
                                     }
                                 }
 
