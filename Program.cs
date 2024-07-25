@@ -21,18 +21,19 @@ namespace ConsoleSBOM
             {
                 if (args[0] != "/h")
                 {
-                    if(!(args[0][1] == ':'))
+                    if (args.Length >= 4)
                     {
-                        args[0] = Path.GetFullPath(args[0]);
-                    }
-                    if(!(args[3][1] == ':'))
-                    {
-                        args[3] = Path.GetFullPath(args[3]);
-                    }
-                    if (Directory.Exists(args[0]) && Directory.Exists(args[3]))
-                    {
-                        if (args.Length >= 4)
+                        if (!(args[0][1] == ':'))
                         {
+                            args[0] = Path.GetFullPath(args[0]);
+                        }
+                        if (!(args[3][1] == ':'))
+                        {
+                            args[3] = Path.GetFullPath(args[3]);
+                        }
+                        if (Directory.Exists(args[0]) && Directory.Exists(args[3]))
+                        {
+
                             string pathLibraries = args[0];
                             string filetype = args[1];
                             string filename = args[2];
@@ -105,7 +106,7 @@ namespace ConsoleSBOM
                                     {
                                         ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
                                         ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
-                                        if(createSpdx)
+                                        if (createSpdx)
                                             ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
                                     }
                                 }
@@ -114,15 +115,16 @@ namespace ConsoleSBOM
                             }
 
                             Console.WriteLine("Done");
+
                         }
                         else
                         {
-                            throw new Exception("Not all args were provided");
+                            throw new Exception("The directory doesn't exist");
                         }
                     }
                     else
                     {
-                        throw new Exception("The directory doesn't exist");
+                        throw new Exception("Not all args were provided");
                     }
                 }
                 else // /h
@@ -205,8 +207,8 @@ namespace ConsoleSBOM
             for (int i = 0; i < directories.Length; i++)
             {
                 Sbom sbomToAdd = CreateSbom(directories[i]);
-                
-                if(!CheckRepeatingLibrary(sbomToAdd))
+
+                if (!CheckRepeatingLibrary(sbomToAdd))
                     result.Add(sbomToAdd);
             }
 
@@ -220,9 +222,9 @@ namespace ConsoleSBOM
         {
             string[] tmp = { sbomToAdd.Name, sbomToAdd.Version + "" };
 
-            foreach(string[] library in libraries)
+            foreach (string[] library in libraries)
             {
-                if(library[0] == tmp[0] && library[1] == tmp[1])
+                if (library[0] == tmp[0] && library[1] == tmp[1])
                 {
                     return true;
                 }
