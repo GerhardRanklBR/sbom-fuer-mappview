@@ -14,12 +14,21 @@ namespace ConsoleSBOM
         const string JSDELIVRBOOTSTRAP = "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js\" integrity=\"sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6\" crossorigin=\"anonymous\" defer></script>";
 
         public static List<string[]> libraries = new List<string[]>();
+
         static void Main(string[] args)
         {
             if (args.Length > 0)
             {
                 if (args[0] != "/h")
                 {
+                    if(!(args[0][1] == ':'))
+                    {
+                        args[0] = Path.GetFullPath(args[0]);
+                    }
+                    if(!(args[3][1] == ':'))
+                    {
+                        args[3] = Path.GetFullPath(args[3]);
+                    }
                     if (Directory.Exists(args[0]) && Directory.Exists(args[3]))
                     {
                         if (args.Length >= 4)
@@ -96,7 +105,8 @@ namespace ConsoleSBOM
                                     {
                                         ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
                                         ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
-                                        ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
+                                        if(createSpdx)
+                                            ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
                                     }
                                 }
 
@@ -107,12 +117,12 @@ namespace ConsoleSBOM
                         }
                         else
                         {
-                            Console.WriteLine("Not all args were provided");
+                            throw new Exception("Not all args were provided");
                         }
                     }
                     else
                     {
-                        Console.WriteLine("The directory doesn't exist");
+                        throw new Exception("The directory doesn't exist");
                     }
                 }
                 else // /h
@@ -134,7 +144,7 @@ namespace ConsoleSBOM
             }
             else
             {
-                Console.WriteLine("Not enough parameter");
+                throw new Exception("Not enough parameter");
             }
         }
 
@@ -339,15 +349,15 @@ namespace ConsoleSBOM
                 if (!logFile)
                 {
                     if (String.IsNullOrEmpty(sbom[i].Version))
-                        Console.WriteLine($"There is no Version in {name}");
+                        throw new Exception($"There is no Version in {name}");
                     if (String.IsNullOrEmpty(sbom[i].SourceOfCode))
-                        Console.WriteLine($"There is no Url in {name}");
+                        throw new Exception($"There is no Url in {name}");
                     if (String.IsNullOrEmpty(sbom[i].LicenseType))
-                        Console.WriteLine($"There is no Licensetype in {name}");
+                        throw new Exception($"There is no Licensetype in {name}");
                     if (sbom[i].License.Length == 1)
-                        Console.WriteLine($"There is no Licensetext in {name}");
+                        throw new Exception($"There is no Licensetext in {name}");
                     if (String.IsNullOrEmpty(sbom[i].Purl))
-                        Console.WriteLine($"There is no Purl in {name}");
+                        throw new Exception($"There is no Purl in {name}");
                 }
                 else
                 {
