@@ -25,7 +25,7 @@ namespace ConsoleSBOM
                     {
                         args[0] = Path.GetFullPath(args[0]);
                         args[3] = Path.GetFullPath(args[3]);
-                        
+
                         if (Directory.Exists(args[0]) && Directory.Exists(args[3]))
                         {
                             string pathLibraries = args[0];
@@ -36,11 +36,12 @@ namespace ConsoleSBOM
 
                             bool[] optArgsBool = OptionalParameter(args, out spdxPath);
 
-                            spdxPath = Path.GetFullPath(spdxPath);
-
-                            if (filetype == "all" || filetype == "spdx" && !File.Exists(spdxPath))
+                            if (filetype == "all" || filetype == "spdx")
                             {
-                                throw new Exception("Spdx path doesn't exist");
+                                spdxPath = Path.GetFullPath(spdxPath);
+                                
+                                if (!File.Exists(spdxPath))
+                                    throw new Exception("Spdx path doesn't exist");
                             }
 
                             string seperator = ";";
