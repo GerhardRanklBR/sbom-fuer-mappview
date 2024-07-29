@@ -44,10 +44,15 @@ namespace ConsoleSBOM
 
                             bool createSpdx = File.Exists(spdxPath);
 
-                            if (filetype == "all" || filetype == "spdx" && !createSpdx)
+                            if (filetype == "all" || filetype == "spdx")
                             {
-                                throw new Exception("Wrong spdx path");
+                                if(!createSpdx)
+                                    throw new Exception("Wrong spdx path");
+                                
+                                spdxPath = Path.GetFullPath(spdxPath);
                             }
+
+
 
                             string seperator = ";";
                             if (optArgsBool[3])
