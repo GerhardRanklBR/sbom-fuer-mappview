@@ -23,14 +23,9 @@ namespace ConsoleSBOM
                 {
                     if (args.Length >= 4)
                     {
-                        if (args[0][1] != ':')
-                        {
-                            args[0] = Path.GetFullPath(args[0]);
-                        }
-                        if (args[3][1] != ':')
-                        {
-                            args[3] = Path.GetFullPath(args[3]);
-                        }
+                        args[0] = Path.GetFullPath(args[0]);
+                        args[3] = Path.GetFullPath(args[3]);
+                        
                         if (Directory.Exists(args[0]) && Directory.Exists(args[3]))
                         {
                             string pathLibraries = args[0];
