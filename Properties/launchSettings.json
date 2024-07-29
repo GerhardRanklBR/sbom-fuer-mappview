@@ -2,7 +2,7 @@
   "profiles": {
     "ConsoleSboM": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\krippelf\\Downloads\\CloneWar html sbom C:\\Users\\krippelf\\Downloads\\ProjektAusgaben",
+      "commandLineArgs": "C:\\Users\\krippelf\\Downloads\\CloneWar spdx sbom C:\\Users\\krippelf\\Downloads\\ProjektAusgaben",
     }
   }
 }

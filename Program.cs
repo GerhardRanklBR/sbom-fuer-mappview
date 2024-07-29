@@ -42,7 +42,12 @@ namespace ConsoleSBOM
 
                             bool[] optArgsBool = OptionalParameter(args, out spdxPath);
 
-                            bool createSpdx = !String.IsNullOrEmpty(spdxPath);
+                            bool createSpdx = File.Exists(spdxPath);
+
+                            if (filetype == "all" || filetype == "spdx" && !createSpdx)
+                            {
+                                throw new Exception("Wrong spdx path");
+                            }
 
                             string seperator = ";";
                             if (optArgsBool[3])
