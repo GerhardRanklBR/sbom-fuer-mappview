@@ -33,7 +33,6 @@ namespace ConsoleSBOM
                         }
                         if (Directory.Exists(args[0]) && Directory.Exists(args[3]))
                         {
-
                             string pathLibraries = args[0];
                             string filetype = args[1];
                             string filename = args[2];
@@ -42,17 +41,12 @@ namespace ConsoleSBOM
 
                             bool[] optArgsBool = OptionalParameter(args, out spdxPath);
 
-                            bool createSpdx = File.Exists(spdxPath);
+                            spdxPath = Path.GetFullPath(spdxPath);
 
-                            if (filetype == "all" || filetype == "spdx")
+                            if (filetype == "all" || filetype == "spdx" && !File.Exists(spdxPath))
                             {
-                                if(!createSpdx)
-                                    throw new Exception("Wrong spdx path");
-                                
-                                spdxPath = Path.GetFullPath(spdxPath);
+                                throw new Exception("Spdx path doesn't exist");
                             }
-
-
 
                             string seperator = ";";
                             if (optArgsBool[3])
@@ -95,7 +89,7 @@ namespace ConsoleSBOM
                                         }
                                     }
 
-                                    if (filetype == "spdx" || filetype == "all" && createSpdx)
+                                    if (filetype == "spdx" || filetype == "all")
                                     {
                                         string path = Path.Combine(pathOutput, filename + ".json");
                                         if (File.Exists(path))
@@ -110,14 +104,13 @@ namespace ConsoleSBOM
                                         ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
                                     if (filetype == "html")
                                         ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
-                                    if (filetype == "spdx" && createSpdx)
+                                    if (filetype == "spdx")
                                         ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
                                     if (filetype == "all" && !addToFile)
                                     {
                                         ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
                                         ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
-                                        if (createSpdx)
-                                            ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
+                                        ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
                                     }
                                 }
 
