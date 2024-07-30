@@ -39,7 +39,7 @@ namespace ConsoleSBOM
                             if (filetype == "all" || filetype == "spdx")
                             {
                                 spdxPath = Path.GetFullPath(spdxPath);
-                                
+
                                 if (!File.Exists(spdxPath))
                                     throw new Exception("Spdx path doesn't exist");
                             }
@@ -62,55 +62,57 @@ namespace ConsoleSBOM
                             foreach (string directory in directories)
                             {
                                 sbom = CreateSbomList(directory, optArgsBool[0], optArgsBool[1], pathOutput, addToFile).ToArray();
-
-                                if (addToFile)
+                                if (sbom.Length != 0)
                                 {
-                                    if (filetype == "csv" || filetype == "all")
+                                    if (addToFile)
                                     {
-                                        string[] csv;
-                                        string path = Path.Combine(pathOutput, filename + ".csv");
-                                        if (File.Exists(path))
+                                        if (filetype == "csv" || filetype == "all")
                                         {
-                                            csv = File.ReadAllLines(Path.Combine(pathOutput, filename + ".csv"));
-                                            ConvertToCsv(filename, sbom, pathOutput, csv.Length, seperator, false);
+                                            string[] csv;
+                                            string path = Path.Combine(pathOutput, filename + ".csv");
+                                            if (File.Exists(path))
+                                            {
+                                                csv = File.ReadAllLines(Path.Combine(pathOutput, filename + ".csv"));
+                                                ConvertToCsv(filename, sbom, pathOutput, csv.Length, seperator, false);
+                                            }
+                                        }
+
+                                        if (filetype == "html" || filetype == "all")
+                                        {
+                                            string path = Path.Combine(pathOutput, filename + ".html");
+                                            if (File.Exists(path))
+                                            {
+                                                ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, false);
+                                            }
+                                        }
+
+                                        if (filetype == "spdx" || filetype == "all")
+                                        {
+                                            string path = Path.Combine(pathOutput, filename + ".json");
+                                            if (File.Exists(path))
+                                            {
+                                                ConvertToSpdx(filename, sbom, pathOutput, spdxPath, false);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (filetype == "csv")
+                                            ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
+                                        if (filetype == "html")
+                                            ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
+                                        if (filetype == "spdx")
+                                            ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
+                                        if (filetype == "all" && !addToFile)
+                                        {
+                                            ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
+                                            ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
+                                            ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
                                         }
                                     }
 
-                                    if (filetype == "html" || filetype == "all")
-                                    {
-                                        string path = Path.Combine(pathOutput, filename + ".html");
-                                        if (File.Exists(path))
-                                        {
-                                            ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, false);
-                                        }
-                                    }
-
-                                    if (filetype == "spdx" || filetype == "all")
-                                    {
-                                        string path = Path.Combine(pathOutput, filename + ".json");
-                                        if (File.Exists(path))
-                                        {
-                                            ConvertToSpdx(filename, sbom, pathOutput, spdxPath, false);
-                                        }
-                                    }
+                                    addToFile = directories.Length > 1;
                                 }
-                                else
-                                {
-                                    if (filetype == "csv")
-                                        ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
-                                    if (filetype == "html")
-                                        ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
-                                    if (filetype == "spdx")
-                                        ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
-                                    if (filetype == "all" && !addToFile)
-                                    {
-                                        ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
-                                        ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
-                                        ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
-                                    }
-                                }
-
-                                addToFile = directories.Length > 1;
                             }
 
                             Console.WriteLine("Done");
@@ -398,13 +400,14 @@ namespace ConsoleSBOM
                 Array.Resize(ref header, header.Length - 2);
             }
 
-            using (StreamWriter writer = new StreamWriter(filename, !newFile))
+            using (StreamWriter writer = new StreamWriter(filename, false))
             {
 
                 foreach (string line in header)
                 {
                     writer.WriteLine(line);
                 }
+
                 for (int i = 0; i < sbom.Length; i++)
                 {
                     writer.WriteLine(newFile ? "" : "   ,");
