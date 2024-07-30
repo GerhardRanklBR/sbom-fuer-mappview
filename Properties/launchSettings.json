@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "ConsoleSboM": {
-      "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\krippelf\\Downloads\\AS6_TP_mappView_6.9335.5000.17 all sbom C:\\Users\\krippelf\\Downloads\\ProjektAusgaben C:\\Users\\krippelf\\Downloads\\JenkinsTest\\mappview-domain\\_Build\\input.json"
-    }
-  }
-}

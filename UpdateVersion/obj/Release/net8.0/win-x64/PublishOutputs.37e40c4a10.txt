@@ -1,0 +1,2 @@
+C:\Users\krippelf\Downloads\UpdateVersion\bin\Release\net8.0\win-x64\publish\UpdateVersion.pdb
+C:\Users\krippelf\Downloads\UpdateVersion\bin\Release\net8.0\win-x64\publish\UpdateVersion.exe
