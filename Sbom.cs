@@ -17,6 +17,7 @@ namespace ConsoleSBOM
         private string[] _license;
 
         public Sbom(){
+            // GRGR: Array.Empty<string>() 
             _license = new string[0];
             _version = String.Empty;
             _sourceOfLicense = String.Empty;
@@ -26,6 +27,9 @@ namespace ConsoleSBOM
             _purl = String.Empty;
         }
 
+        // GRGR: use auto properties
+        // GRGR: use initializers
+        //  e.g. public string Name { get; set; } = string.Empty;
         public string Name
         {
             get { return _name; }

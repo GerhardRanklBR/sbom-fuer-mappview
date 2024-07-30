@@ -15,21 +15,30 @@ namespace ConsoleSBOM
         const string JSDELIVRPOPPER = "<script src=\"https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js\" integrity=\"sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo\" crossorigin=\"anonymous\" defer></script>";
         const string JSDELIVRBOOTSTRAP = "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js\" integrity=\"sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6\" crossorigin=\"anonymous\" defer></script>";
 
+        // GRGR: public properties should be PascalCase
         public static List<string[]> libraries = new List<string[]>();
 
         static void Main(string[] args)
         {
+            // GRGR: invert ifs for better readability
+            //  e.g. if (args.Length == 0)
+            //          throw new Exception("Not enough parameter");
+            //       if (args[0] == "/h") { PrintHelp(); } 
             if (args.Length > 0)
             {
                 if (args[0] != "/h")
                 {
+                    // GRGR: use NECESSARYARGS?
                     if (args.Length >= 4)
                     {
+                        // GRGR: use a struct or class for arguments?
                         args[0] = Path.GetFullPath(args[0]);
                         args[3] = Path.GetFullPath(args[3]);
 
                         if (Directory.Exists(args[0]) && Directory.Exists(args[3]))
                         {
+                            // GRGR: use camel case for variable names (e.g. fileType instead of filetype)
+                            // GRGR: use consistent naming for variables (pathOutput vs spdxPath)
                             string pathLibraries = args[0];
                             string filetype = args[1];
                             string filename = args[2];
@@ -45,11 +54,13 @@ namespace ConsoleSBOM
                                 if (!File.Exists(spdxPath))
                                     throw new Exception("Spdx path doesn't exist");
                             }
-
+                            
+                            // GRGR: separator
                             string seperator = ";";
                             if (optArgsBool[3])
                                 seperator = ",";
 
+                            // GRGR: why is this a string?
                             string lightOrDarkTable = "";
 
                             if (optArgsBool[4])
@@ -271,6 +282,7 @@ namespace ConsoleSBOM
 
             if (Directory.Exists(directory))
             {
+                // GRGR: simplify (Directory.GetDirectories() is already returning an string[])
                 foreach (string dir in Directory.GetDirectories(directory, "Licenses", SearchOption.AllDirectories))
                 {
                     licensesFolders.Add(dir);
