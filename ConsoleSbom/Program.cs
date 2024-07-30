@@ -8,205 +8,95 @@ namespace ConsoleSBOM
 {
     public class Program
     {
-        const int NECESSARYARGS = 4;
-        const int OPTIONALARGS = 5;
         const string BOOTSTRAP = "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css\" integrity=\"sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh\" crossorigin=\"anonymous\">";
         const string JQUERY = "<script src=\"https://code.jquery.com/jquery-3.4.1.slim.min.js\" integrity=\"sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n\" crossorigin=\"anonymous\" defer></script>";
         const string JSDELIVRPOPPER = "<script src=\"https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js\" integrity=\"sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo\" crossorigin=\"anonymous\" defer></script>";
         const string JSDELIVRBOOTSTRAP = "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js\" integrity=\"sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6\" crossorigin=\"anonymous\" defer></script>";
-
-        // GRGR: public properties should be PascalCase
-        public static List<string[]> libraries = new List<string[]>();
+        public static List<string[]> Libraries = new List<string[]>();
 
         static void Main(string[] args)
         {
-            // GRGR: invert ifs for better readability
-            //  e.g. if (args.Length == 0)
-            //          throw new Exception("Not enough parameter");
-            //       if (args[0] == "/h") { PrintHelp(); } 
-            if (args.Length > 0)
+            Args Args = new Args(args);
+
+            if (args[0] == "/h")
             {
-                if (args[0] != "/h")
+                return;
+            }
+
+            bool addToFile = Args.Add;
+
+            Sbom[] sbom;
+
+            string[] directories = FindLicensesFolders(Args.PathLibraries);
+
+            foreach (string directory in directories)
+            {
+                sbom = CreateSbomList(directory, Args.Log, Args.LogFile, Args.PathOutput, addToFile).ToArray();
+
+                if (sbom.Length != 0)
                 {
-                    // GRGR: use NECESSARYARGS?
-                    if (args.Length >= 4)
+                    if (addToFile)
                     {
-                        // GRGR: use a struct or class for arguments?
-                        args[0] = Path.GetFullPath(args[0]);
-                        args[3] = Path.GetFullPath(args[3]);
-
-                        if (Directory.Exists(args[0]) && Directory.Exists(args[3]))
+                        if (Args.FileType == "csv" || Args.FileType == "all")
                         {
-                            // GRGR: use camel case for variable names (e.g. fileType instead of filetype)
-                            // GRGR: use consistent naming for variables (pathOutput vs spdxPath)
-                            string pathLibraries = args[0];
-                            string filetype = args[1];
-                            string filename = args[2];
-                            string pathOutput = args[3];
-                            string spdxPath;
-
-                            bool[] optArgsBool = OptionalParameter(args, out spdxPath);
-
-                            if (filetype == "all" || filetype == "spdx")
+                            string path = Path.Combine(Args.PathOutput, Args.FileName + ".csv");
+                            if (File.Exists(path))
                             {
-                                spdxPath = Path.GetFullPath(spdxPath);
-
-                                if (!File.Exists(spdxPath))
-                                    throw new Exception("Spdx path doesn't exist");
+                                string[] csv = File.ReadAllLines(Path.Combine(Args.PathOutput, Args.FileName + ".csv"));
+                                ConvertToCsv(Args.FileName, sbom, Args.PathOutput, csv.Length, Args.Seperator, false);
                             }
-                            
-                            // GRGR: separator
-                            string seperator = ";";
-                            if (optArgsBool[3])
-                                seperator = ",";
-
-                            // GRGR: why is this a string?
-                            string lightOrDarkTable = "";
-
-                            if (optArgsBool[4])
-                                lightOrDarkTable = "table-dark";
-
-                            Sbom[] sbom;
-
-                            string[] directories = FindLicensesFolders(pathLibraries);
-
-                            bool addToFile = optArgsBool[2];
-
-                            foreach (string directory in directories)
-                            {
-                                sbom = CreateSbomList(directory, optArgsBool[0], optArgsBool[1], pathOutput, addToFile).ToArray();
-                                if (sbom.Length != 0)
-                                {
-                                    if (addToFile)
-                                    {
-                                        if (filetype == "csv" || filetype == "all")
-                                        {
-                                            string[] csv;
-                                            string path = Path.Combine(pathOutput, filename + ".csv");
-                                            if (File.Exists(path))
-                                            {
-                                                csv = File.ReadAllLines(Path.Combine(pathOutput, filename + ".csv"));
-                                                ConvertToCsv(filename, sbom, pathOutput, csv.Length, seperator, false);
-                                            }
-                                        }
-
-                                        if (filetype == "html" || filetype == "all")
-                                        {
-                                            string path = Path.Combine(pathOutput, filename + ".html");
-                                            if (File.Exists(path))
-                                            {
-                                                ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, false);
-                                            }
-                                        }
-
-                                        if (filetype == "spdx" || filetype == "all")
-                                        {
-                                            string path = Path.Combine(pathOutput, filename + ".json");
-                                            if (File.Exists(path))
-                                            {
-                                                ConvertToSpdx(filename, sbom, pathOutput, spdxPath, false);
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (filetype == "csv")
-                                            ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
-                                        if (filetype == "html")
-                                            ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
-                                        if (filetype == "spdx")
-                                            ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
-                                        if (filetype == "all" && !addToFile)
-                                        {
-                                            ConvertToCsv(filename, sbom, pathOutput, 1, seperator, true);
-                                            ConvertToHtml(filename, sbom, pathOutput, lightOrDarkTable, true);
-                                            ConvertToSpdx(filename, sbom, pathOutput, spdxPath, true);
-                                        }
-                                    }
-
-                                    addToFile = directories.Length > 1;
-                                }
-                            }
-
-                            Console.WriteLine("Done");
-
                         }
-                        else
+
+                        if (Args.FileType == "html" || Args.FileType == "all")
                         {
-                            throw new Exception("The directory doesn't exist");
+                            string path = Path.Combine(Args.PathOutput, Args.FileName + ".html");
+                            if (File.Exists(path))
+                            {
+                                ConvertToHtml(Args.FileName, sbom, Args.PathOutput, Args.DarkMode, false);
+                            }
+                        }
+
+                        if (Args.FileType == "spdx" || Args.FileType == "all")
+                        {
+                            string path = Path.Combine(Args.PathOutput, Args.FileName + ".json");
+                            if (File.Exists(path))
+                            {
+                                ConvertToSpdx(Args.FileName, sbom, Args.PathOutput, Args.PathSpdxHeader, false);
+                            }
                         }
                     }
                     else
                     {
-                        throw new Exception("Not all args were provided");
+                        if (Args.FileType == "csv")
+                            ConvertToCsv(Args.FileName, sbom, Args.PathOutput, 1, Args.Seperator, true);
+                        if (Args.FileType == "html")
+                            ConvertToHtml(Args.FileName, sbom, Args.PathOutput, Args.DarkMode, false);
+                        if (Args.FileType == "spdx")
+                            ConvertToSpdx(Args.FileName, sbom, Args.PathOutput, Args.PathSpdxHeader, true);
+                        if (Args.FileType == "all" && !addToFile)
+                        {
+                            ConvertToCsv(Args.FileName, sbom, Args.PathOutput, 1, Args.Seperator, true);
+                            ConvertToHtml(Args.FileName, sbom, Args.PathOutput, Args.DarkMode, true);
+                            ConvertToSpdx(Args.FileName, sbom, Args.PathOutput, Args.PathSpdxHeader, true);
+                        }
                     }
-                }
-                else // /h
-                {
-                    Console.WriteLine("----------------------------------------------------------------------------------------------------------");
-                    Console.WriteLine("The first arg should be the complete filepath to the libaries");
-                    Console.WriteLine("The second should be the filetype of the file (\"csv\", \"xmll\", \"html\", \"all\")");
-                    Console.WriteLine("The third value should be the output filename");
-                    Console.WriteLine("The fourth arg should be the full filepath to the directory, where the new file should end up");
-                    Console.WriteLine("[Should be the filepath to a sbom.json header formated in a specific way]");
-                    Console.WriteLine("[Should be \"log\" if a log should be provided and \"logfile\" if the log should be in a file instead]");
-                    Console.WriteLine("[Should be \"add\" if the new csv should be added at the end of the old one]");
-                    Console.WriteLine("[Should be a \",\" if the csv should use , as seperators");
-                    Console.WriteLine("[Should be \"dark\" if the html table should be in dark mode]");
-                    Console.WriteLine("Note: The args in [] are interchangeable with another, the order doesn't matter");
-                    Console.WriteLine("----------------------------------------------------------------------------------------------------------");
-
+                    addToFile = directories.Length > 1;
                 }
             }
-            else
-            {
-                throw new Exception("Not enough parameter");
-            }
-        }
-
-        static bool[] OptionalParameter(string[] input, out string spdxPath)
-        {
-            bool[] output = new bool[OPTIONALARGS];
-            spdxPath = "";
-
-            for (int i = NECESSARYARGS; i < input.Length; i++)
-            {
-                if (input[i] == "log")
-                    output[0] = true;
-
-                if (input[i] == "logfile")
-                {
-                    output[0] = true;
-                    output[1] = true;
-                }
-
-                if (input[i] == "add")
-                    output[2] = true;
-
-                if (input[i] == ",")
-                    output[3] = true;
-
-                if (input[i] == "dark")
-                    output[4] = true;
-
-                if (File.Exists(input[i]))
-                    spdxPath = input[i];
-            }
-
-            return output;
+            Console.WriteLine("Done");
         }
 
         static Sbom CreateSbom(string directory)
         {
             Sbom output = new Sbom();
 
-            output.Version = VersionCreator(Path.Combine(directory, "VERSION"));
+            output.Version = ReadFile(Path.Combine(directory, "VERSION"));
             output.SourceOfLicense = UrlCreator(Path.Combine(directory, "lic-src.url"))[0];
-            output.LicenseType = LicenseTypeCreator(Path.Combine(directory, "LICENSETYPE"));
+            output.LicenseType = ReadFile(Path.Combine(directory, "LICENSETYPE"));
             string[] name = directory.Split(new char[] { '/', '\\' });
             output.Name = name[name.Length - 1];
             output.SourceOfCode = UrlCreator(Path.Combine(directory, "lic-src.url"))[1];
-            output.Purl = PurlCreator(Path.Combine(directory, "PURL"));
+            output.Purl = ReadFile(Path.Combine(directory, "PURL"));
             output.License = LicenseCreator(Path.Combine(directory, "LICENSE"));
 
             return output;
@@ -236,7 +126,7 @@ namespace ConsoleSBOM
         {
             string[] tmp = { sbomToAdd.Name, sbomToAdd.Version + "" };
 
-            foreach (string[] library in libraries)
+            foreach (string[] library in Libraries)
             {
                 if (library[0] == tmp[0] && library[1] == tmp[1])
                 {
@@ -244,7 +134,7 @@ namespace ConsoleSBOM
                 }
             }
 
-            libraries.Add(tmp);
+            Libraries.Add(tmp);
             return false;
         }
 
@@ -278,40 +168,33 @@ namespace ConsoleSBOM
 
         public static string[] FindLicensesFolders(string directory)
         {
-            List<string> licensesFolders = new List<string>();
+            string[] licensesFolders = Array.Empty<string>();
 
             if (Directory.Exists(directory))
             {
-                // GRGR: simplify (Directory.GetDirectories() is already returning an string[])
-                foreach (string dir in Directory.GetDirectories(directory, "Licenses", SearchOption.AllDirectories))
-                {
-                    licensesFolders.Add(dir);
-                }
+                licensesFolders = Directory.GetDirectories(directory, "Licenses", SearchOption.AllDirectories);
             }
 
-            return licensesFolders.ToArray();
+            return licensesFolders;
         }
 
         public static string[] FindFoldersWithLicenses(string directory)
         {
-            List<string> licensesFolders = new List<string>();
+            string[] licensesFolders = Array.Empty<string>();
 
             if (Directory.Exists(directory))
             {
-                foreach (string file in Directory.GetFiles(directory, "LICENSE", SearchOption.AllDirectories))
-                {
-                    licensesFolders.Add(Path.GetDirectoryName(file)!);
-                }
+                licensesFolders = Directory.GetFiles(directory, "LICENSE", SearchOption.AllDirectories);
             }
 
-            return licensesFolders.ToArray();
+            return licensesFolders;
         }
 
-        public static string LicenseTypeCreator(string directory)
+        public static string ReadFile(string directory)
         {
             if (File.Exists(directory))
             {
-                return File.ReadAllText(directory);
+                return File.ReadAllLines(directory)[0];
             }
             else
             {
@@ -328,30 +211,6 @@ namespace ConsoleSBOM
             else
             {
                 return new string[1];
-            }
-        }
-
-        static string VersionCreator(string directory)
-        {
-            if (File.Exists(directory))
-            {
-                return File.ReadAllLines(directory)[0];
-            }
-            else
-            {
-                return String.Empty;
-            }
-        }
-
-        static string PurlCreator(string directory)
-        {
-            if (File.Exists(directory))
-            {
-                return File.ReadAllText(directory);
-            }
-            else
-            {
-                return String.Empty;
             }
         }
 
@@ -474,12 +333,11 @@ namespace ConsoleSBOM
             }
         }
 
-        static void ConvertToHtml(string filename, Sbom[] sbom, string directory, string lightOrDarkTable, bool newFile)
+        static void ConvertToHtml(string filename, Sbom[] sbom, string directory, bool darkmode, bool newFile)
         {
             filename = Path.Combine(directory, filename + ".html");
             using (StreamWriter writer = new StreamWriter(filename, !newFile))
             {
-                bool darkmode = lightOrDarkTable == "table-dark";
                 string color = darkmode ? "white" : "black";
                 if (newFile) // Print HTML Header
                 {
@@ -498,7 +356,7 @@ namespace ConsoleSBOM
                     writer.WriteLine("<body class=\"bg-" + (darkmode ? "dark" : "light") + "\">");
                     writer.WriteLine("</br>");
                     writer.WriteLine("");
-                    writer.WriteLine($"<table style=\"width:100%\" class=\"table table-striped {lightOrDarkTable}\">");
+                    writer.WriteLine($"<table style=\"width:100%\" class=\"table table-striped" + (darkmode ? "table-dark" : "") + "\">");
                     writer.WriteLine("<tr>");
                     writer.WriteLine("<thead class=\"thead-" + (darkmode ? "light" : "dark") + "\">");
                     writer.WriteLine($"<th>Name</th><th>Version</th><th>License Expressions</th><th>Source of License</th><th>Source of Code</th>");
