@@ -203,11 +203,7 @@ namespace ConsoleSBOM
             {
                 return File.ReadAllLines(directory)[0];
             }
-            // GRGR: redundant else (just return)
-            else
-            {
-                return String.Empty;
-            }
+            return String.Empty;
         }
 
         // GRGR: naming (ReadAllLines maybe)
@@ -217,11 +213,7 @@ namespace ConsoleSBOM
             {
                 return File.ReadAllLines(directory);
             }
-            // GRGR: redundant else (just return)
-            else
-            {
-                return new string[1];
-            }
+            return new string[1];
         }
 
         static void CreateLog(Sbom[] sbom, bool logFile, string fileName, bool multipleLicenses)
