@@ -7,16 +7,26 @@ namespace ConsoleSBOM
     {
 
         const int NECESSARYARGS = 4;
+
+        // GRGR: not used
         const int OPTIONALARGS = 5;
+        
         public Args(string[] args)
         {
             ErrorHandling(args);
             if (args[0] == "/h")
             {
+                // GRGR: PrintHelp() should be called here
                 return;
             }
+
+            // GRGR: move to property initializer
             Seperator = ";";
+
+            // GRGR: move to the end (necessary before optional parameters)
             OptionalParameter(args);
+
+
             PathLibraries = Path.GetFullPath(args[0]);
             FileType = args[1];
             FileName = args[2];
@@ -36,6 +46,7 @@ namespace ConsoleSBOM
         public static bool DarkMode { get; private set; }
 
 
+        // GRGR: explicitly set modifiers for all methods (public, private, etc.)
         static void OptionalParameter(string[] input)
         {
             for (int i = NECESSARYARGS; i < input.Length; i++)
@@ -81,9 +92,11 @@ namespace ConsoleSBOM
 
         static void ErrorHandling(string[] args)
         {
+            // GRGR: <= NECESSARYARGS is covering the case of 0 arguments
             if (args.Length == 0)
                 throw new Exception("Not enough parameter");
 
+            // GRGR: /h is not an error, so it doesn't fit in this method
             if (args[0] == "/h")
             {
                 PrintHelp();

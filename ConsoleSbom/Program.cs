@@ -16,6 +16,7 @@ namespace ConsoleSBOM
 
         static void Main(string[] args)
         {
+            // GRGR: Args variable is not used
             Args Args = new Args(args);
 
             if (args[0] == "/h")
@@ -67,10 +68,11 @@ namespace ConsoleSBOM
                     }
                     else
                     {
+                        // GRGR: why not if (Args.FileType == "csv" || Args.FileType == "all") ?
                         if (Args.FileType == "csv")
                             ConvertToCsv(Args.FileName, sbom, Args.PathOutput, 1, Args.Seperator, true);
                         if (Args.FileType == "html")
-                            ConvertToHtml(Args.FileName, sbom, Args.PathOutput, Args.DarkMode, false);
+                            ConvertToHtml(Args.FileName, sbom, Args.PathOutput, Args.DarkMode, false);      // GRGR: newFile is false ... why?
                         if (Args.FileType == "spdx")
                             ConvertToSpdx(Args.FileName, sbom, Args.PathOutput, Args.PathSpdxHeader, true);
                         if (Args.FileType == "all" && !addToFile)
@@ -80,6 +82,8 @@ namespace ConsoleSBOM
                             ConvertToSpdx(Args.FileName, sbom, Args.PathOutput, Args.PathSpdxHeader, true);
                         }
                     }
+
+                    // GRGR: add comment
                     addToFile = directories.Length > 1;
                 }
             }
@@ -91,8 +95,10 @@ namespace ConsoleSBOM
             Sbom output = new Sbom();
 
             output.Version = ReadFile(Path.Combine(directory, "VERSION"));
+            // GRGR: call UrlCreator only once
             output.SourceOfLicense = UrlCreator(Path.Combine(directory, "lic-src.url"))[0];
             output.LicenseType = ReadFile(Path.Combine(directory, "LICENSETYPE"));
+            // GRGR: use Path.GetFileName instead of splitting
             string[] name = directory.Split(new char[] { '/', '\\' });
             output.Name = name[name.Length - 1];
             output.SourceOfCode = UrlCreator(Path.Combine(directory, "lic-src.url"))[1];
@@ -190,24 +196,28 @@ namespace ConsoleSBOM
             return licensesFolders;
         }
 
+        // GRGR: naming (ReadFirstLine maybe)
         public static string ReadFile(string directory)
         {
             if (File.Exists(directory))
             {
                 return File.ReadAllLines(directory)[0];
             }
+            // GRGR: redundant else (just return)
             else
             {
                 return String.Empty;
             }
         }
 
+        // GRGR: naming (ReadAllLines maybe)
         public static string[] LicenseCreator(string directory)
         {
             if (File.Exists(directory))
             {
                 return File.ReadAllLines(directory);
             }
+            // GRGR: redundant else (just return)
             else
             {
                 return new string[1];
