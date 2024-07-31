@@ -27,14 +27,16 @@ x86/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
-[Bb]in
-[Oo]bj
+[Bb]in/
+[Oo]bj/
 [Oo]ut/
 [Ll]og/
 [Ll]ogs/
 
 # Visual Studio 2015/2017 cache/options directory
-.vs/UpdateVersion
+.vs/
+ConsoleSbom\.vs
+UpdateVersion\.vs
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
@@ -361,7 +363,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
-bin
-
-obj
