@@ -1,5 +1,0 @@
-C:\Users\krippelf\Downloads\UpdateVersion\bin\Release\net8.0\publish\UpdateVersion.exe
-C:\Users\krippelf\Downloads\UpdateVersion\bin\Release\net8.0\publish\UpdateVersion.dll
-C:\Users\krippelf\Downloads\UpdateVersion\bin\Release\net8.0\publish\UpdateVersion.deps.json
-C:\Users\krippelf\Downloads\UpdateVersion\bin\Release\net8.0\publish\UpdateVersion.runtimeconfig.json
-C:\Users\krippelf\Downloads\UpdateVersion\bin\Release\net8.0\publish\UpdateVersion.pdb
