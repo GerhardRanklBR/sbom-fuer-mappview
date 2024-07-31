@@ -7,30 +7,19 @@ namespace ConsoleSBOM
     {
 
         const int NECESSARYARGS = 4;
-
-        // GRGR: not used
-        const int OPTIONALARGS = 5;
         
         public Args(string[] args)
         {
             ErrorHandling(args);
             if (args[0] == "/h")
             {
-                // GRGR: PrintHelp() should be called here
                 return;
             }
-
-            // GRGR: move to property initializer
-            Seperator = ";";
-
-            // GRGR: move to the end (necessary before optional parameters)
-            OptionalParameter(args);
-
-
             PathLibraries = Path.GetFullPath(args[0]);
             FileType = args[1];
             FileName = args[2];
             PathOutput = Path.GetFullPath(args[3]);
+            OptionalParameter(args);
             DirectoryErrorHandler();
         }
 
@@ -39,15 +28,13 @@ namespace ConsoleSBOM
         public static string FileName { get; private set; } = string.Empty;
         public static string PathOutput { get; private set; } = string.Empty;
         public static string PathSpdxHeader { get; private set; } = string.Empty;
-        public static string Seperator { get; private set; } = string.Empty;
+        public static string Seperator { get; private set; } = ";";
         public static bool Log { get; private set; }
         public static bool LogFile { get; private set; }
         public static bool Add { get; private set; }
         public static bool DarkMode { get; private set; }
 
-
-        // GRGR: explicitly set modifiers for all methods (public, private, etc.)
-        static void OptionalParameter(string[] input)
+        private static void OptionalParameter(string[] input)
         {
             for (int i = NECESSARYARGS; i < input.Length; i++)
             {
@@ -74,7 +61,7 @@ namespace ConsoleSBOM
             }
         }
 
-        static void PrintHelp()
+        private static void PrintHelp()
         {
             Console.WriteLine("----------------------------------------------------------------------------------------------------------");
             Console.WriteLine("The first arg should be the complete filepath to the libaries");
@@ -90,13 +77,11 @@ namespace ConsoleSBOM
             Console.WriteLine("----------------------------------------------------------------------------------------------------------");
         }
 
-        static void ErrorHandling(string[] args)
+        private static void ErrorHandling(string[] args)
         {
-            // GRGR: <= NECESSARYARGS is covering the case of 0 arguments
             if (args.Length == 0)
                 throw new Exception("Not enough parameter");
 
-            // GRGR: /h is not an error, so it doesn't fit in this method
             if (args[0] == "/h")
             {
                 PrintHelp();
@@ -107,7 +92,7 @@ namespace ConsoleSBOM
                 throw new Exception("Not enough parameter");
         }
 
-        static void DirectoryErrorHandler()
+        private static void DirectoryErrorHandler()
         {
             if (!Directory.Exists(PathLibraries) || !Directory.Exists(PathOutput))
                 throw new Exception("The directory doesn't exist");
