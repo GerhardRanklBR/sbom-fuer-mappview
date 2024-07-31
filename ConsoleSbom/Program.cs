@@ -16,8 +16,7 @@ namespace ConsoleSBOM
 
         static void Main(string[] args)
         {
-            // GRGR: Args variable is not used
-            Args Args = new Args(args);
+            new Args(args);
 
             if (args[0] == "/h")
             {
@@ -28,7 +27,7 @@ namespace ConsoleSBOM
 
             Sbom[] sbom;
 
-            string[] directories = FindLicensesFolders(Args.PathLibraries);
+            string[] directories = FindLicenses(Args.PathLibraries);
 
             foreach (string directory in directories)
             {
@@ -68,55 +67,52 @@ namespace ConsoleSBOM
                     }
                     else
                     {
-                        // GRGR: why not if (Args.FileType == "csv" || Args.FileType == "all") ?
-                        if (Args.FileType == "csv")
+                        if (Args.FileType == "csv" || Args.FileType == "all")
                             ConvertToCsv(Args.FileName, sbom, Args.PathOutput, 1, Args.Seperator, true);
-                        if (Args.FileType == "html")
-                            ConvertToHtml(Args.FileName, sbom, Args.PathOutput, Args.DarkMode, false);      // GRGR: newFile is false ... why?
-                        if (Args.FileType == "spdx")
-                            ConvertToSpdx(Args.FileName, sbom, Args.PathOutput, Args.PathSpdxHeader, true);
-                        if (Args.FileType == "all" && !addToFile)
-                        {
-                            ConvertToCsv(Args.FileName, sbom, Args.PathOutput, 1, Args.Seperator, true);
+                        if (Args.FileType == "html" || Args.FileType == "all")
                             ConvertToHtml(Args.FileName, sbom, Args.PathOutput, Args.DarkMode, true);
+                        if (Args.FileType == "spdx" || Args.FileType == "all")
                             ConvertToSpdx(Args.FileName, sbom, Args.PathOutput, Args.PathSpdxHeader, true);
-                        }
                     }
 
-                    // GRGR: add comment
+                    // We don't want to create a new file and overwrite the file we created on the previous run
                     addToFile = directories.Length > 1;
                 }
             }
             Console.WriteLine("Done");
         }
 
+        /// <summary>
+        /// Gets given a directory and saves the data from this directory to a Sbom
+        /// </summary>
         static Sbom CreateSbom(string directory)
         {
             Sbom output = new Sbom();
+            string[] urls = UrlCreator(Path.Combine(directory, "lic-src.url"));
 
-            output.Version = ReadFile(Path.Combine(directory, "VERSION"));
-            // GRGR: call UrlCreator only once
-            output.SourceOfLicense = UrlCreator(Path.Combine(directory, "lic-src.url"))[0];
-            output.LicenseType = ReadFile(Path.Combine(directory, "LICENSETYPE"));
-            // GRGR: use Path.GetFileName instead of splitting
-            string[] name = directory.Split(new char[] { '/', '\\' });
-            output.Name = name[name.Length - 1];
-            output.SourceOfCode = UrlCreator(Path.Combine(directory, "lic-src.url"))[1];
-            output.Purl = ReadFile(Path.Combine(directory, "PURL"));
-            output.License = LicenseCreator(Path.Combine(directory, "LICENSE"));
+            output.Version = ReadFirstLine(Path.Combine(directory, "VERSION"));
+            output.SourceOfLicense = urls[0];
+            output.LicenseType = ReadFirstLine(Path.Combine(directory, "LICENSETYPE"));
+            output.Name = Path.GetFileName(directory);
+            output.SourceOfCode = urls[1];
+            output.Purl = ReadFirstLine(Path.Combine(directory, "PURL"));
+            output.License = ReadAllLines(Path.Combine(directory, "LICENSE"));
 
             return output;
         }
 
+        /// <summary>
+        /// Creates a Sbom List and a log, either in a file or as Exceptions
+        /// </summary>
         public static List<Sbom> CreateSbomList(string parentDirectory, bool createLog, bool logFile, string outputLoc, bool multipleLicenses)
         {
             string[] directories = FindFoldersWithLicenses(parentDirectory);
 
             List<Sbom> result = new List<Sbom>();
 
-            for (int i = 0; i < directories.Length; i++)
+            foreach(string directory in directories) 
             {
-                Sbom sbomToAdd = CreateSbom(directories[i]);
+                Sbom sbomToAdd = CreateSbom(Path.GetDirectoryName(directory)!);
 
                 if (!CheckRepeatingLibrary(sbomToAdd))
                     result.Add(sbomToAdd);
@@ -128,6 +124,9 @@ namespace ConsoleSBOM
             return result;
         }
 
+        /// <summary>
+        /// Adds Sbom name and Version to a List and returns if the Sbom was already inside
+        /// </summary>
         public static bool CheckRepeatingLibrary(Sbom sbomToAdd)
         {
             string[] tmp = { sbomToAdd.Name, sbomToAdd.Version + "" };
@@ -144,6 +143,9 @@ namespace ConsoleSBOM
             return false;
         }
 
+        /// <summary>
+        /// Gets given a directory and returns at index 0 thre source of code and at index 1 the source of license
+        /// </summary>
         public static string[] UrlCreator(string directory)
         {
             string[] output = new string[2];
@@ -172,7 +174,10 @@ namespace ConsoleSBOM
             return output;
         }
 
-        public static string[] FindLicensesFolders(string directory)
+        /// <summary>
+        /// Searches for folders called "Licenses"
+        /// </summary>
+        public static string[] FindLicenses(string directory)
         {
             string[] licensesFolders = Array.Empty<string>();
 
@@ -184,6 +189,9 @@ namespace ConsoleSBOM
             return licensesFolders;
         }
 
+        /// <summary>
+        /// Returns directories containing files called "LICENSE"
+        /// </summary>
         public static string[] FindFoldersWithLicenses(string directory)
         {
             string[] licensesFolders = Array.Empty<string>();
@@ -196,8 +204,10 @@ namespace ConsoleSBOM
             return licensesFolders;
         }
 
-        // GRGR: naming (ReadFirstLine maybe)
-        public static string ReadFile(string directory)
+        /// <summary>
+        /// Reads first line of a file, if the file exists
+        /// </summary>
+        public static string ReadFirstLine(string directory)
         {
             if (File.Exists(directory))
             {
@@ -206,8 +216,10 @@ namespace ConsoleSBOM
             return String.Empty;
         }
 
-        // GRGR: naming (ReadAllLines maybe)
-        public static string[] LicenseCreator(string directory)
+        /// <summary>
+        /// Reads all lines of a file, if the file exists
+        /// </summary>
+        public static string[] ReadAllLines(string directory)
         {
             if (File.Exists(directory))
             {
@@ -216,6 +228,9 @@ namespace ConsoleSBOM
             return new string[1];
         }
 
+        /// <summary>
+        /// Creates a log file or throws an exception, if any value of any Sbom is empty
+        /// </summary>
         static void CreateLog(Sbom[] sbom, bool logFile, string fileName, bool multipleLicenses)
         {
             DeleteFile(Path.Combine(fileName, "log.txt"), logFile && !multipleLicenses);
@@ -256,6 +271,9 @@ namespace ConsoleSBOM
             }
         }
 
+        /// <summary>
+        /// Creates a .json file ind the spdx format
+        /// </summary>
         static void ConvertToSpdx(string filename, Sbom[] sbom, string directory, string headerFile, bool newFile)
         {
             filename = Path.Combine(directory, filename + ".json");
@@ -309,6 +327,9 @@ namespace ConsoleSBOM
             }
         }
 
+        /// <summary>
+        /// Converts the sbom[] to a csv
+        /// </summary>
         static void ConvertToCsv(string filename, Sbom[] sbom, string directory, int length, string seperator, bool newFile)
         {
             filename = Path.Combine(directory, filename + ".csv");
@@ -335,6 +356,9 @@ namespace ConsoleSBOM
             }
         }
 
+        /// <summary>
+        /// Converts the sbom[] to a html table
+        /// </summary>
         static void ConvertToHtml(string filename, Sbom[] sbom, string directory, bool darkmode, bool newFile)
         {
             filename = Path.Combine(directory, filename + ".html");
@@ -367,7 +391,7 @@ namespace ConsoleSBOM
                 }
                 for (int i = 0; i < sbom.Length; i++)
                 {
-                    writer.WriteLine("<tr>");
+                    writer.WriteLine($"<tr style=\"color:{color}\">");
                     writer.WriteLine("<td>" + sbom[i].Name + "</td>");
                     writer.WriteLine("<td>" + sbom[i].Version + "</td>");
                     if (sbom[i].License.Length != 1)
@@ -392,6 +416,9 @@ namespace ConsoleSBOM
             }
         }
 
+        /// <summary>
+        /// Deletes the given file, if it exists and delete is true
+        /// </summary>
         static void DeleteFile(string directory, bool delete)
         {
             if (delete)
