@@ -9,6 +9,7 @@ namespace ConsoleSBOM
     public class Sbom
     {
         public string Name { get; set; } = string.Empty;
+
         public string Version { get; set; } = string.Empty;
 
         public string SourceOfLicense { get; set; } = string.Empty;
@@ -20,5 +21,7 @@ namespace ConsoleSBOM
         public string Purl { get; set; } = string.Empty;
 
         public string[] License { get; set; } = Array.Empty<string>();
+
+        public string Path { get; set; } = string.Empty;
     }
 }
