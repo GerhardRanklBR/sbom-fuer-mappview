@@ -2,7 +2,7 @@
   "profiles": {
     "ConsoleSboM": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\krippelf\\Downloads\\CloneWar html sbom C:\\Users\\krippelf\\Downloads\\ProjektAusgaben C:\\Users\\krippelf\\Downloads\\JenkinsTest\\mappview-domain\\_Build\\input.json dark logfile"
+      "commandLineArgs": "\"C:\\\\GIT\\\\bitbucket\\\\mappView\\\\IAT\" \"all\" \"sbom\" \"C:\\\\GIT\\\\bitbucket\\\\mappView\\\\IAT\\\\Licenses\" \"logfile\" \"dark\" \"C:\\\\GIT\\\\bitbucket\\\\mappView\\\\IAT\\\\Licenses\\\\input.json\""
     }
   }
 }

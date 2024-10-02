@@ -97,6 +97,7 @@ namespace ConsoleSBOM
             output.SourceOfCode = urls[1];
             output.Purl = ReadFirstLine(Path.Combine(directory, "PURL"));
             output.License = ReadAllLines(Path.Combine(directory, "LICENSE"));
+            output.Path = directory;
 
             return output;
         }
@@ -237,35 +238,36 @@ namespace ConsoleSBOM
 
             for (int i = 0; i < sbom.Length; i++)
             {
-                string name = sbom[i].Name;
+                var name = sbom[i].Name;
+                var path = sbom[i].Path;
 
                 if (!logFile)
                 {
                     if (String.IsNullOrEmpty(sbom[i].Version))
-                        throw new Exception($"There is no Version in {name}");
+                        throw new Exception($"There is no Version in {name} ({path})");
                     if (String.IsNullOrEmpty(sbom[i].SourceOfCode))
-                        throw new Exception($"There is no Url in {name}");
+                        throw new Exception($"There is no Url in {name} ({path})");
                     if (String.IsNullOrEmpty(sbom[i].LicenseType))
-                        throw new Exception($"There is no Licensetype in {name}");
+                        throw new Exception($"There is no Licensetype in {name} ({path})");
                     if (sbom[i].License.Length == 1)
-                        throw new Exception($"There is no Licensetext in {name}");
+                        throw new Exception($"There is no Licensetext in {name} ({path})");
                     if (String.IsNullOrEmpty(sbom[i].Purl))
-                        throw new Exception($"There is no Purl in {name}");
+                        throw new Exception($"There is no Purl in {name} ({path})");
                 }
                 else
                 {
                     using (StreamWriter sw = new StreamWriter(Path.Combine(fileName, "log.txt"), true))
                     {
                         if (String.IsNullOrEmpty(sbom[i].Version))
-                            sw.WriteLine($"There is no Version in {name}");
+                            sw.WriteLine($"There is no Version in {name} ({path})");
                         if (String.IsNullOrEmpty(sbom[i].SourceOfCode))
-                            sw.WriteLine($"There is no Url in {name}");
+                            sw.WriteLine($"There is no Url in {name} ({path})");
                         if (String.IsNullOrEmpty(sbom[i].LicenseType))
-                            sw.WriteLine($"There is no Licensetype in {name}");
+                            sw.WriteLine($"There is no Licensetype in {name} ({path})");
                         if (sbom[i].License.Length == 1)
-                            sw.WriteLine($"There is no Licensetext in {name}");
+                            sw.WriteLine($"There is no Licensetext in {name} ({path})");
                         if (String.IsNullOrEmpty(sbom[i].Purl))
-                            sw.WriteLine($"There is no Purl in {name}");
+                            sw.WriteLine($"There is no Purl in {name} ({path})");
                     }
                 }
             }
