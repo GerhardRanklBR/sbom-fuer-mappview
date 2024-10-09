@@ -18,7 +18,8 @@
                 {
                     Console.WriteLine(version);
                     fileContent = File.ReadAllLines(file);
-                    fileContent[21] = $"        \"version\": \"{version}\",";
+                    fileContent[21] = fileContent[21].Replace("6.0.0", version);
+                    fileContent[31] = fileContent[31].Replace("6.0.0", version);
 
                     using (StreamWriter writer = new StreamWriter(file, false))
                     {
