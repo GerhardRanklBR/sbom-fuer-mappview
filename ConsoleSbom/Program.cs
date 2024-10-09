@@ -400,7 +400,7 @@ namespace ConsoleSBOM
                     writer.WriteLine($"<tr style=\"color:{color}\">");
                     writer.WriteLine("<td>" + sbom[i].Name + "</td>");
                     writer.WriteLine("<td>" + sbom[i].Version + "</td>");
-                    if (sbom[i].License.Length != 1)
+                    if (sbom[i].License.Length > 0)     // do not add details if the license is empty
                     {
                         writer.WriteLine($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <pre style=\"color:{color};\">");
                         foreach (string line in sbom[i].License)
