@@ -305,6 +305,10 @@ namespace ConsoleSBOM
 
                 for (int i = 0; i < sbom.Length; i++)
                 {
+                    var licenseTypeKey = sbom[i].LicenseType.Equals("Commercial", StringComparison.OrdinalIgnoreCase)
+                        ? "name"
+                        : "id";
+
                     writer.WriteLine(newFile ? "" : "   ,");
                     writer.WriteLine("    {");
                     writer.WriteLine("      \"type\": \"library\",");
@@ -313,7 +317,7 @@ namespace ConsoleSBOM
                     writer.WriteLine("      \"licenses\": [");
                     writer.WriteLine("        {");
                     writer.WriteLine("          \"license\": {");
-                    writer.WriteLine($"            \"id\": \"{sbom[i].LicenseType}\",");
+                    writer.WriteLine($"            \"{licenseTypeKey}\": \"{sbom[i].LicenseType}\",");
                     writer.WriteLine($"            \"url\": \"{sbom[i].SourceOfLicense}\"");
                     writer.WriteLine("          }");
                     writer.WriteLine("        }");
