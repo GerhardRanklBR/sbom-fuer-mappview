@@ -145,7 +145,7 @@ namespace ConsoleSBOM
         }
 
         /// <summary>
-        /// Gets given a directory and returns at index 0 thre source of code and at index 1 the source of license
+        /// Gets given a directory and returns at index 0 the source of code and at index 1 the source of license
         /// </summary>
         public static string[] UrlCreator(string directory)
         {
@@ -245,8 +245,9 @@ namespace ConsoleSBOM
                 {
                     if (String.IsNullOrEmpty(sbom[i].Version))
                         throw new Exception($"There is no Version in {name} ({path})");
-                    if (String.IsNullOrEmpty(sbom[i].SourceOfCode))
-                        throw new Exception($"There is no Url in {name} ({path})");
+                    // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
+                    //if (String.IsNullOrEmpty(sbom[i].SourceOfCode))
+                    //    throw new Exception($"There is no Url in {name} ({path})");
                     if (String.IsNullOrEmpty(sbom[i].LicenseType))
                         throw new Exception($"There is no Licensetype in {name} ({path})");
                     if (sbom[i].License.Length == 1)
@@ -260,8 +261,9 @@ namespace ConsoleSBOM
                     {
                         if (String.IsNullOrEmpty(sbom[i].Version))
                             sw.WriteLine($"There is no Version in {name} ({path})");
-                        if (String.IsNullOrEmpty(sbom[i].SourceOfCode))
-                            sw.WriteLine($"There is no Url in {name} ({path})");
+                        // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
+                        //if (String.IsNullOrEmpty(sbom[i].SourceOfCode))
+                        //    sw.WriteLine($"There is no Url in {name} ({path})");
                         if (String.IsNullOrEmpty(sbom[i].LicenseType))
                             sw.WriteLine($"There is no Licensetype in {name} ({path})");
                         if (sbom[i].License.Length == 1)
@@ -344,7 +346,9 @@ namespace ConsoleSBOM
             {
                 if (newFile)
                 {
-                    writer.WriteLine($"0{seperator}Name{seperator}LicenseExpressions{seperator}Source of License{seperator}Version{seperator}Source of Code{seperator}Purl{seperator}");
+                    // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
+                    //writer.WriteLine($"0{seperator}Name{seperator}LicenseExpressions{seperator}Source of License{seperator}Version{seperator}Source of Code{seperator}Purl{seperator}");
+                    writer.WriteLine($"0{seperator}Name{seperator}LicenseExpressions{seperator}Source of License{seperator}Version{seperator}Purl{seperator}");
                 }
 
                 for (int i = 0; i < sbom.Length; i++)
@@ -354,7 +358,8 @@ namespace ConsoleSBOM
                     writer.Write(sbom[i].LicenseType + seperator);
                     writer.Write(sbom[i].SourceOfLicense + seperator);
                     writer.Write(sbom[i].Version + seperator);
-                    writer.Write(sbom[i].SourceOfCode + seperator);
+                    // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
+                    //writer.Write(sbom[i].SourceOfCode + seperator);   
                     writer.Write(sbom[i].Purl + seperator);
                     writer.WriteLine();
                 }
@@ -391,7 +396,9 @@ namespace ConsoleSBOM
                     writer.WriteLine($"<table style=\"width:100%\" class=\"table table-striped" + (darkmode ? "table-dark" : "") + "\">");
                     writer.WriteLine("<tr>");
                     writer.WriteLine("<thead class=\"thead-" + (darkmode ? "light" : "dark") + "\">");
-                    writer.WriteLine($"<th>Name</th><th>Version</th><th>License Expressions</th><th>Source of License</th><th>Source of Code</th>");
+                    // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
+                    //writer.WriteLine($"<th>Name</th><th>Version</th><th>License Expressions</th><th>Source of License</th><th>Source of Code</th>");
+                    writer.WriteLine($"<th>Name</th><th>Version</th><th>License Expressions</th><th>Source of License</th>");
                     writer.WriteLine("</thead>");
                     writer.WriteLine("</tr>");
                 }
@@ -415,7 +422,8 @@ namespace ConsoleSBOM
                     }
 
                     writer.WriteLine(String.IsNullOrEmpty(sbom[i].SourceOfLicense) ? "<td></td>" : $"<td><a href=\"{sbom[i].SourceOfLicense}\">license</a> </td>");
-                    writer.WriteLine(String.IsNullOrEmpty(sbom[i].SourceOfCode) ? "<td></td>" : $"<td><a href=\"{sbom[i].SourceOfCode}\">code</a> </td>");
+                    // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
+                    //writer.WriteLine(String.IsNullOrEmpty(sbom[i].SourceOfCode) ? "<td></td>" : $"<td><a href=\"{sbom[i].SourceOfCode}\">code</a> </td>");
 
                     writer.WriteLine("</tr>");
                 }
