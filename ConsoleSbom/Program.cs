@@ -226,7 +226,7 @@ namespace ConsoleSBOM
             {
                 return File.ReadAllLines(directory);
             }
-            return new string[1];
+            return Array.Empty<string>();
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace ConsoleSBOM
                     //    throw new Exception($"There is no Url in {name} ({path})");
                     if (String.IsNullOrEmpty(sbom[i].LicenseType))
                         throw new Exception($"There is no Licensetype in {name} ({path})");
-                    if (sbom[i].License.Length == 1)
+                    if (sbom[i].License.Length == 0)
                         throw new Exception($"There is no Licensetext in {name} ({path})");
                     if (String.IsNullOrEmpty(sbom[i].Purl))
                         throw new Exception($"There is no Purl in {name} ({path})");
@@ -266,7 +266,7 @@ namespace ConsoleSBOM
                         //    sw.WriteLine($"There is no Url in {name} ({path})");
                         if (String.IsNullOrEmpty(sbom[i].LicenseType))
                             sw.WriteLine($"There is no Licensetype in {name} ({path})");
-                        if (sbom[i].License.Length == 1)
+                        if (sbom[i].License.Length == 0)
                             sw.WriteLine($"There is no Licensetext in {name} ({path})");
                         if (String.IsNullOrEmpty(sbom[i].Purl))
                             sw.WriteLine($"There is no Purl in {name} ({path})");
@@ -407,7 +407,7 @@ namespace ConsoleSBOM
                     writer.WriteLine($"<tr style=\"color:{color}\">");
                     writer.WriteLine("<td>" + sbom[i].Name + "</td>");
                     writer.WriteLine("<td>" + sbom[i].Version + "</td>");
-                    if (sbom[i].License.Length > 0)     // do not add details if the license is empty
+                    if (sbom[i].License.Length != 0)     // do not add details if the license is empty or doesn't exist
                     {
                         writer.WriteLine($"<td> <details> <summary>{sbom[i].LicenseType}</summary> <pre style=\"color:{color};\">");
                         foreach (string line in sbom[i].License)
