@@ -310,6 +310,9 @@ namespace ConsoleSBOM
                     var licenseTypeKey = sbom[i].LicenseType.Equals("Commercial", StringComparison.OrdinalIgnoreCase)
                         ? "name"
                         : "id";
+                    var purlKey = sbom[i].Purl.StartsWith("cpe", StringComparison.OrdinalIgnoreCase)
+                        ? "cpe"
+                        : "purl";
 
                     writer.WriteLine(newFile ? "" : "   ,");
                     writer.WriteLine("    {");
@@ -324,7 +327,7 @@ namespace ConsoleSBOM
                     writer.WriteLine("          }");
                     writer.WriteLine("        }");
                     writer.WriteLine("      ],");
-                    writer.WriteLine($"      \"purl\": \"{sbom[i].Purl}\"");
+                    writer.WriteLine($"      \"{purlKey}\": \"{sbom[i].Purl}\"");
                     writer.WriteLine("    }");
                     newFile = false;
                 }
