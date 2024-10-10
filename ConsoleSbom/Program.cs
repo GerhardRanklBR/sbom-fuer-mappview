@@ -191,7 +191,7 @@ namespace ConsoleSBOM
         }
 
         /// <summary>
-        /// Returns directories containing files called "LICENSE"
+        /// Returns directories containing files called "LICENSETYPE"
         /// </summary>
         public static string[] FindFoldersWithLicenses(string directory)
         {
@@ -199,7 +199,7 @@ namespace ConsoleSBOM
 
             if (Directory.Exists(directory))
             {
-                licensesFolders = Directory.GetFiles(directory, "LICENSE", SearchOption.AllDirectories);
+                licensesFolders = Directory.GetFiles(directory, "LICENSETYPE", SearchOption.AllDirectories);
             }
 
             return licensesFolders;
