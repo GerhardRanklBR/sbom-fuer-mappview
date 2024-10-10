@@ -97,7 +97,7 @@ namespace ConsoleSBOM
             output.SourceOfCode = urls[1];
             output.Purl = ReadFirstLine(Path.Combine(directory, "PURL"));
             output.License = ReadAllLines(Path.Combine(directory, "LICENSE"));
-            output.Path = directory;
+            output.Path = Path.GetRelativePath(Args.PathOutput, Path.GetDirectoryName(directory) ?? string.Empty);
 
             return output;
         }
@@ -351,7 +351,7 @@ namespace ConsoleSBOM
                 {
                     // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
                     //writer.WriteLine($"0{seperator}Name{seperator}LicenseExpressions{seperator}Source of License{seperator}Version{seperator}Source of Code{seperator}Purl{seperator}");
-                    writer.WriteLine($"0{seperator}Name{seperator}LicenseExpressions{seperator}Source of License{seperator}Version{seperator}Purl{seperator}");
+                    writer.WriteLine($"0{seperator}Name{seperator}LicenseExpressions{seperator}Source of License{seperator}Version{seperator}Purl{seperator}Component{seperator}");
                 }
 
                 for (int i = 0; i < sbom.Length; i++)
@@ -364,6 +364,7 @@ namespace ConsoleSBOM
                     // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
                     //writer.Write(sbom[i].SourceOfCode + seperator);   
                     writer.Write(sbom[i].Purl + seperator);
+                    writer.Write(sbom[i].Path + seperator);
                     writer.WriteLine();
                 }
 
