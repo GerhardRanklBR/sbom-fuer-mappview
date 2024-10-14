@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 namespace ConsoleSBOM
 {
     public class Program
@@ -200,9 +201,24 @@ namespace ConsoleSBOM
             if (Directory.Exists(directory))
             {
                 licensesFolders = Directory.GetFiles(directory, "LICENSETYPE", SearchOption.AllDirectories);
+                Array.Sort(licensesFolders, new ExplorerLikePathComparer());
             }
 
             return licensesFolders;
+        }
+
+        // not perfect, but orders the directories in a similar way as the windows explorer does
+        public class ExplorerLikePathComparer : IComparer<string>
+        {
+
+            [DllImport("shlwapi.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
+            static extern int StrCmpLogicalW(string x, string y);
+
+            public int Compare(string x, string y)
+            {
+                return StrCmpLogicalW(x, y);
+            }
+
         }
 
         /// <summary>
