@@ -413,12 +413,12 @@ namespace ConsoleSBOM
                     writer.WriteLine("<body class=\"bg-" + (darkmode ? "dark" : "light") + "\">");
                     writer.WriteLine("</br>");
                     writer.WriteLine("");
-                    writer.WriteLine($"<table style=\"width:100%\" class=\"table table-striped" + (darkmode ? " table-dark" : "") + "\">");
+                    writer.WriteLine($"<table style=\"width:100%\" class=\"table table-hover table-striped" + (darkmode ? " table-dark" : "") + "\">");
                     writer.WriteLine("<tr>");
                     writer.WriteLine("<thead class=\"thead-" + (darkmode ? "light" : "dark") + "\">");
                     // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
                     //writer.WriteLine($"<th>Name</th><th>Version</th><th>License Expressions</th><th>Source of License</th><th>Source of Code</th>");
-                    writer.WriteLine($"<th>Name</th><th>Version</th><th>License Expressions</th><th>Source of License</th>");
+                    writer.WriteLine($"<th>Name</th><th>Version</th><th>License Expressions</th><th>Source of License</th><th>Component</th>");
                     writer.WriteLine("</thead>");
                     writer.WriteLine("</tr>");
                 }
@@ -444,6 +444,7 @@ namespace ConsoleSBOM
                     writer.WriteLine(String.IsNullOrEmpty(sbom[i].SourceOfLicense) ? "<td></td>" : $"<td><a href=\"{sbom[i].SourceOfLicense}\">license</a> </td>");
                     // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
                     //writer.WriteLine(String.IsNullOrEmpty(sbom[i].SourceOfCode) ? "<td></td>" : $"<td><a href=\"{sbom[i].SourceOfCode}\">code</a> </td>");
+                    writer.WriteLine("<td>" + sbom[i].Path + "</td>");
 
                     writer.WriteLine("</tr>");
                 }
