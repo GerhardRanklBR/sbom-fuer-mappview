@@ -413,7 +413,7 @@ namespace ConsoleSBOM
                     writer.WriteLine("<body class=\"bg-" + (darkmode ? "dark" : "light") + "\">");
                     writer.WriteLine("</br>");
                     writer.WriteLine("");
-                    writer.WriteLine($"<table style=\"width:100%\" class=\"table table-striped" + (darkmode ? "table-dark" : "") + "\">");
+                    writer.WriteLine($"<table style=\"width:100%\" class=\"table table-striped" + (darkmode ? " table-dark" : "") + "\">");
                     writer.WriteLine("<tr>");
                     writer.WriteLine("<thead class=\"thead-" + (darkmode ? "light" : "dark") + "\">");
                     // deactivated, because we can not guarantee that the SourceOfCode, generated from the .url file, is a valid URL in every case
